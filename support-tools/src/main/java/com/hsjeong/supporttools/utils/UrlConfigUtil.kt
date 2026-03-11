@@ -47,11 +47,11 @@ object UrlConfigUtil {
     }
 
     fun setServerType(context: Context, serverType: ServerType) {
-        PreferencesUtil().putStringPreferences(context, Preference.KEY_SERVER_TYPE, serverType.name)
+        PreferencesUtil.putStringPreferences(context, Preference.KEY_SERVER_TYPE, serverType.name)
     }
 
     fun getServerType(context: Context): ServerType {
-        val name = PreferencesUtil().getStringPreferences(context, Preference.KEY_SERVER_TYPE, ServerType.DEV.name)
+        val name = PreferencesUtil.getStringPreferences(context, Preference.KEY_SERVER_TYPE, ServerType.DEV.name)
         return ServerType.valueOf(name!!)
     }
 
@@ -61,7 +61,7 @@ object UrlConfigUtil {
             val originalUrl = request.url
             val urlConfigData = findUrlConfigData(originalUrl.host)
 
-            val isNetworkSwitching = PreferencesUtil().getUrlSwitchingEnable(context)
+            val isNetworkSwitching = PreferencesUtil.getUrlSwitchingEnable(context)
             if (!isNetworkSwitching) {
                 return chain.proceed(request)
             }

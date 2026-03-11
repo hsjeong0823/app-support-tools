@@ -9,6 +9,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import com.hsjeong.supporttools.R
 import com.hsjeong.supporttools.ui.base.BaseActivity
+import com.hsjeong.supporttools.ui.preferenceviewer.PreferenceViewerActivity
 import com.hsjeong.supporttools.utils.PreferencesUtil
 import com.hsjeong.supporttools.utils.UrlConfigUtil
 import kotlin.system.exitProcess
@@ -29,23 +30,15 @@ class SupportToolsActivity : BaseActivity() {
         init()
         setContent {
             SupportToolsScreen(viewModel = viewModel, onUiEventListener = {
-                when (it) {
-                    SupportToolsUiEvent.Close -> {
-                        finish()
-                    }
-
-                    SupportToolsUiEvent.Apply -> {
-                        applySetting()
-                    }
-                }
+                onUiEvent(it)
             })
         }
     }
 
     private fun init() {
-        val showScreenName = PreferencesUtil().getScreenNameOverLayEnable(this)
-        val showNetworkLog = PreferencesUtil().getNetworkLogEnable(this)
-        val enableServerChange = PreferencesUtil().getUrlSwitchingEnable(this)
+        val showScreenName = PreferencesUtil.getScreenNameOverLayEnable(this)
+        val showNetworkLog = PreferencesUtil.getNetworkLogEnable(this)
+        val enableServerChange = PreferencesUtil.getUrlSwitchingEnable(this)
         val serverType = UrlConfigUtil.getServerType(this)
         viewModel.processIntent(
             SupportToolsIntent.Init(
@@ -57,11 +50,27 @@ class SupportToolsActivity : BaseActivity() {
         )
     }
 
+    private fun onUiEvent(event: SupportToolsUiEvent) {
+        when (event) {
+            SupportToolsUiEvent.Close -> {
+                finish()
+            }
+
+            SupportToolsUiEvent.Apply -> {
+                applySetting()
+            }
+
+            SupportToolsUiEvent.MovePreferenceViewer -> {
+                PreferenceViewerActivity.start(this)
+            }
+        }
+    }
+
     private fun applySetting() {
         val state = viewModel.state.value
-        PreferencesUtil().setScreenNameOverLayEnable(application, state.showScreenName)
-        PreferencesUtil().setNetworkLogEnable(application, state.showNetworkLog)
-        PreferencesUtil().setUrlSwitchingEnable(application, state.enableServerChange)
+        PreferencesUtil.setScreenNameOverLayEnable(application, state.showScreenName)
+        PreferencesUtil.setNetworkLogEnable(application, state.showNetworkLog)
+        PreferencesUtil.setUrlSwitchingEnable(application, state.enableServerChange)
         UrlConfigUtil.setServerType(application, state.selectedServer)
 
         val restartApp = {

@@ -62,29 +62,28 @@ fun SupportToolsScreen(viewModel: SupportToolsViewModel,
             .fillMaxSize()
             .systemBarsPadding(),
         topBar = {
-            ToolBarView(onCloseClick = { onUiEventListener?.invoke(SupportToolsUiEvent.Close) })
+            SupportToolsToolBarView(onCloseClick = { onUiEventListener?.invoke(SupportToolsUiEvent.Close) })
         },
         content = {
             Box(modifier = Modifier
                 .fillMaxSize()
                 .background(color = colorResource(R.color.c_ffffff))
                 .padding(it)) {
-                ContentView(viewModel = viewModel, onUiEventListener = onUiEventListener)
+                SupportToolsContentView(viewModel = viewModel, onUiEventListener = onUiEventListener)
             }
         },
         bottomBar = {
             Box(modifier = Modifier
                 .background(color = colorResource(R.color.c_ffffff))
                 .shadow(elevation = 10.dp)) {
-                BottomBarView(viewModel = viewModel, onApplyClick = { onUiEventListener?.invoke(
-                    SupportToolsUiEvent.Apply) })
+                SupportToolsBottomBarView(viewModel = viewModel, onApplyClick = { onUiEventListener?.invoke(SupportToolsUiEvent.Apply) })
             }
         }
     )
 }
 
 @Composable
-fun ToolBarView(onCloseClick: () -> Unit) {
+fun SupportToolsToolBarView(onCloseClick: () -> Unit) {
     CommonToolBarH48(
         leftContent = {
             Image(
@@ -107,7 +106,7 @@ fun ToolBarView(onCloseClick: () -> Unit) {
 }
 
 @Composable
-fun BottomBarView(viewModel: SupportToolsViewModel, onApplyClick: () -> Unit) {
+fun SupportToolsBottomBarView(viewModel: SupportToolsViewModel, onApplyClick: () -> Unit) {
     Box(modifier = Modifier
             .background(color = colorResource(R.color.c_ffffff))
             .padding(10.dp)) {
@@ -122,7 +121,7 @@ fun BottomBarView(viewModel: SupportToolsViewModel, onApplyClick: () -> Unit) {
 }
 
 @Composable
-fun ContentView(viewModel: SupportToolsViewModel, onUiEventListener: ((SupportToolsUiEvent) -> Unit)? = null) {
+fun SupportToolsContentView(viewModel: SupportToolsViewModel, onUiEventListener: ((SupportToolsUiEvent) -> Unit)? = null) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -131,10 +130,23 @@ fun ContentView(viewModel: SupportToolsViewModel, onUiEventListener: ((SupportTo
     ) {
         DebugSettingView(viewModel = viewModel, onUiEventListener = onUiEventListener)
 
-        // 서버 URL 변경 설정 VIEW
+        // 서버 URL 변경 설정 View
         if (viewModel.state.value.enableServerChange) {
             Spacer(modifier = Modifier.height(26.dp))
             ServerUrlSettingView(viewModel = viewModel, onUiEventListener = onUiEventListener)
+        }
+
+        // Preference viewer 버튼 View
+        Spacer(modifier = Modifier.height(26.dp))
+        Box(modifier = Modifier
+            .background(color = colorResource(R.color.c_ffffff))) {
+            CtaButton(
+                buttonType = ButtonType.FILLWHITE_BORDERGREEN,
+                ctaButtonStyle = CtaButtonStyle.TYPE_MEDIUM,
+                text = stringResource(R.string.preference_viewer_button),
+                enabled = true,
+                onClick = { onUiEventListener?.invoke(SupportToolsUiEvent.MovePreferenceViewer) }
+            )
         }
     }
 }

@@ -50,8 +50,8 @@ object SupportTools {
             return
         }
 
-        val isNetworkLog = PreferencesUtil().getNetworkLogEnable(context)
-        val isNetworkSwitching = PreferencesUtil().getUrlSwitchingEnable(context)
+        val isNetworkLog = PreferencesUtil.getNetworkLogEnable(context)
+        val isNetworkSwitching = PreferencesUtil.getUrlSwitchingEnable(context)
 
         if (isNetworkSwitching) {
             okHttpBuilder.addInterceptor(UrlConfigUtil.UrlSwitchingInterceptor(context))

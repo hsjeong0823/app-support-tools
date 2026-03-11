@@ -6,6 +6,7 @@ import com.hsjeong.supporttools.utils.UrlConfigUtil
 sealed class SupportToolsUiEvent {
     data object Close : SupportToolsUiEvent()
     data object Apply : SupportToolsUiEvent()
+    data object MovePreferenceViewer : SupportToolsUiEvent()
 }
 
 // ViewModel로 전달되는 Intent 정의

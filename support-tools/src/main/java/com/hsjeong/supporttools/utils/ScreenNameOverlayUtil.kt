@@ -33,7 +33,7 @@ object ScreenNameOverlayUtil {
 
     @JvmStatic
     fun initialize(application: Application) {
-        val isShowScreenName = PreferencesUtil().getScreenNameOverLayEnable(application)
+        val isShowScreenName = PreferencesUtil.getScreenNameOverLayEnable(application)
         if (!isShowScreenName) {
             return
         }
@@ -68,7 +68,7 @@ object ScreenNameOverlayUtil {
 
     private fun updateLog(context: Context?, message: String?) {
         context?.let {
-            val isShowScreenName = PreferencesUtil().getScreenNameOverLayEnable(context)
+            val isShowScreenName = PreferencesUtil.getScreenNameOverLayEnable(context)
             if (!isShowScreenName) {
                 WindowLogUtil.remove()
                 return

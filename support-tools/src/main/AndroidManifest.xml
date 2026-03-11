@@ -6,5 +6,13 @@
         <activity
             android:name="com.hsjeong.supporttools.ui.SupportToolsActivity"
             android:exported="false" />
+
+        <activity
+            android:name="com.hsjeong.supporttools.ui.preferenceviewer.PreferenceViewerActivity"
+            android:exported="false" />
+
+        <activity
+            android:name="com.hsjeong.supporttools.ui.preferenceviewer.detail.PreferenceViewerDetailActivity"
+            android:exported="false" />
     </application>
 </manifest>
