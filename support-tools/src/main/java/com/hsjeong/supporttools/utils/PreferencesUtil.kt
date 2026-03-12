@@ -37,6 +37,22 @@ class PreferencesUtil() {
             return PreferencesUtil.getBooleanPreferences(context, Preference.KEY_SCREEN_NAME_OVERLAY_ENABLE, true)
         }
 
+        fun setLogcatViewerEnable(context: Context, boolean: Boolean) {
+            PreferencesUtil.putBooleanPreferences(context, Preference.KEY_LOGCAT_VIEWER_ENABLE, boolean)
+        }
+
+        fun getLogcatViewerEnable(context: Context): Boolean {
+            return PreferencesUtil.getBooleanPreferences(context, Preference.KEY_LOGCAT_VIEWER_ENABLE, true)
+        }
+
+        fun setLogcatViewerSearchWord(context: Context, value: String) {
+            PreferencesUtil.putStringPreferences(context, Preference.KEY_LOGCAT_VIEWER_SEARCH_WORD, value)
+        }
+
+        fun getLogcatViewerSearchWord(context: Context): String? {
+            return PreferencesUtil.getStringPreferences(context, Preference.KEY_LOGCAT_VIEWER_SEARCH_WORD, "")
+        }
+
         fun setNetworkLogEnable(context: Context, boolean: Boolean) {
             PreferencesUtil.putBooleanPreferences(context, Preference.KEY_NETWORK_LOG_ENABLE, boolean)
         }

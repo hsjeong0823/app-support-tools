@@ -8,9 +8,6 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ProcessLifecycleOwner
 
 // ==========================================
 // ScreenNameOverlayUtil (현재 액티비티 이름을 화면에 플로팅 위한 Util)
@@ -37,15 +34,6 @@ object ScreenNameOverlayUtil {
         if (!isShowScreenName) {
             return
         }
-        ProcessLifecycleOwner.get().lifecycle.addObserver(object :
-            DefaultLifecycleObserver {
-            override fun onStart(owner: LifecycleOwner) {
-            }
-
-            override fun onStop(owner: LifecycleOwner) {
-                WindowLogUtil.remove()
-            }
-        })
 
         application.registerActivityLifecycleCallbacks(object :
             Application.ActivityLifecycleCallbacks {

@@ -13,4 +13,5 @@
     <string name="alert_restart_message">설정 적용을 위해 앱을 재시작 합니다.</string>
     <string name="preference_viewer_button">Preference Viewer</string>
     <string name="preference_viewer_screen_title">Preference Viewer</string>
+    <string name="log_viewer_screen_title">Log Viewer</string>
 </resources>

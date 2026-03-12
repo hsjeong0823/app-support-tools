@@ -4,11 +4,12 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.hsjeong.supporttools.utils.PreferencesUtil
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
 class PreferenceViewerViewModel(application: Application) : AndroidViewModel(application) {
     private val _state = MutableStateFlow(PreferenceViewerState())
-    val state = _state
+    val state: StateFlow<PreferenceViewerState> = _state
 
     init {
         processIntent((PreferenceViewerIntent.LoadPreferenceFiles))
@@ -18,7 +19,7 @@ class PreferenceViewerViewModel(application: Application) : AndroidViewModel(app
         when (intent) {
             is PreferenceViewerIntent.LoadPreferenceFiles -> {
                 val files = PreferencesUtil.getPreferenceFiles(getApplication())
-                state.update { 
+                _state.update {
                     it.copy(
                         preferenceAllFiles = files,
                         preferenceSearchedFiles = files
@@ -27,12 +28,12 @@ class PreferenceViewerViewModel(application: Application) : AndroidViewModel(app
             }
 
             is PreferenceViewerIntent.SearchPreferenceFiles -> {
-                state.update {
+                _state.update {
                     val files = if (intent.searchText.isEmpty()) {
                         it.preferenceAllFiles
                     } else {
                         it.preferenceAllFiles.filter { file ->
-                            file.contains(intent.searchText)
+                            file.contains(intent.searchText, ignoreCase = true)
                         }
                     }
 

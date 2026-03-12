@@ -14,12 +14,14 @@ sealed class SupportToolsIntent {
     data class Init(
         val serverType: UrlConfigUtil.ServerType,
         val showScreenName: Boolean,
+        val showLogcatViewer: Boolean,
         val showNetworkLog: Boolean,
         val enableServerChange: Boolean
     ) : SupportToolsIntent()
 
     data class SelectServer(val serverType: UrlConfigUtil.ServerType) : SupportToolsIntent()
     data class ToggleScreenName(val checked: Boolean) : SupportToolsIntent()
+    data class ToggleLogcatViewer(val enable: Boolean) : SupportToolsIntent()
     data class ToggleNetworkLog(val checked: Boolean) : SupportToolsIntent()
     data class ToggleServerChange(val checked: Boolean) : SupportToolsIntent()
 }
@@ -29,6 +31,7 @@ data class SupportToolsState(
     val selectedServer: UrlConfigUtil.ServerType = UrlConfigUtil.ServerType.DEV,
     val selectUrls: List<String> = emptyList(),
     val showScreenName: Boolean = false,
+    val showLogcatViewer: Boolean = false,
     val showNetworkLog: Boolean = false,
     val enableServerChange: Boolean = false
 )

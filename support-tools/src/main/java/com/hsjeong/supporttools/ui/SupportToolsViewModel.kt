@@ -15,6 +15,7 @@ class SupportToolsViewModel() : ViewModel() {
                     selectedServer = intent.serverType,
                     selectUrls = UrlConfigUtil.getUrls(intent.serverType),
                     showScreenName = intent.showScreenName,
+                    showLogcatViewer = intent.showLogcatViewer,
                     showNetworkLog = intent.showNetworkLog,
                     enableServerChange = intent.enableServerChange
                 )
@@ -30,6 +31,11 @@ class SupportToolsViewModel() : ViewModel() {
                     showScreenName = intent.checked
                 )
             }
+            is SupportToolsIntent.ToggleLogcatViewer -> {
+                _state.value = _state.value.copy(
+                    showLogcatViewer = intent.enable
+                )
+            }
             is SupportToolsIntent.ToggleNetworkLog -> {
                 _state.value = _state.value.copy(
                     showNetworkLog = intent.checked
@@ -40,7 +46,6 @@ class SupportToolsViewModel() : ViewModel() {
                     enableServerChange = intent.checked
                 )
             }
-
         }
     }
 }

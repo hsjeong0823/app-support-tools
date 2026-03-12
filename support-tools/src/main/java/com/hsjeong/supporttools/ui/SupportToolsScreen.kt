@@ -174,6 +174,21 @@ fun DebugSettingView(viewModel: SupportToolsViewModel, onUiEventListener: ((Supp
     }
 
     CommonCheckBox(
+        checked = state.showLogcatViewer,
+        onCheckedChange = {
+            viewModel.processIntent(
+                SupportToolsIntent.ToggleLogcatViewer(it)
+            )
+        },
+        modifier = Modifier.padding(top = 10.dp)
+    ) {
+        Text(text = "로그 뷰어 설정",
+            fontSize = 14.sp,
+            color = colorResource(R.color.c_000000),
+            modifier = Modifier.padding(start = 10.dp))
+    }
+
+    CommonCheckBox(
         checked = state.showNetworkLog,
         onCheckedChange = {
             viewModel.processIntent(

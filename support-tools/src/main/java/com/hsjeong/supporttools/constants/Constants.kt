@@ -7,5 +7,7 @@ object Constants {
         const val KEY_SCREEN_NAME_OVERLAY_ENABLE = "screen_name_overlay_enable"
         const val KEY_NETWORK_LOG_ENABLE = "network_log_enable"
         const val KEY_URL_SWITCHING_ENABLE = "url_switching_enable"
+        const val KEY_LOGCAT_VIEWER_ENABLE = "logcat_viewer_enable"
+        const val KEY_LOGCAT_VIEWER_SEARCH_WORD = "logcat_viewer_search_word"
     }
 }

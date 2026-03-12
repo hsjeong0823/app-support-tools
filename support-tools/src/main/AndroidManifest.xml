@@ -14,5 +14,9 @@
         <activity
             android:name="com.hsjeong.supporttools.ui.preferenceviewer.detail.PreferenceViewerDetailActivity"
             android:exported="false" />
+
+        <activity
+            android:name="com.hsjeong.supporttools.ui.logviewer.LogViewerActivity"
+            android:exported="false"/>
     </application>
 </manifest>

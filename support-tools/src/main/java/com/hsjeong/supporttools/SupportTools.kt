@@ -3,10 +3,14 @@ package com.hsjeong.supporttools
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.chuckerteam.chucker.api.RetentionManager
 import com.hsjeong.supporttools.ui.SupportToolsActivity
+import com.hsjeong.supporttools.utils.LogcatOverlayUtil
 import com.hsjeong.supporttools.utils.ScreenNameOverlayUtil
 import com.hsjeong.supporttools.utils.WindowLogUtil
 import com.hsjeong.supporttools.utils.UrlConfigUtil
@@ -29,6 +33,17 @@ object SupportTools {
     fun initialize(application: Application, debugEnable: Boolean = true) {
         isDebug = debugEnable
         if (isDebug) {
+            ProcessLifecycleOwner.get().lifecycle.addObserver(object :
+                DefaultLifecycleObserver {
+                override fun onStart(owner: LifecycleOwner) {
+                }
+
+                override fun onStop(owner: LifecycleOwner) {
+                    LogcatOverlayUtil.remove()
+                    WindowLogUtil.remove()
+                }
+            })
+
             // 화면 액티비티명 노출 설정
             ScreenNameOverlayUtil.initialize(application)
         }

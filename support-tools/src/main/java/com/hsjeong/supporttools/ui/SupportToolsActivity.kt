@@ -10,6 +10,7 @@ import androidx.activity.viewModels
 import com.hsjeong.supporttools.R
 import com.hsjeong.supporttools.ui.base.BaseActivity
 import com.hsjeong.supporttools.ui.preferenceviewer.PreferenceViewerActivity
+import com.hsjeong.supporttools.utils.LogcatOverlayUtil
 import com.hsjeong.supporttools.utils.PreferencesUtil
 import com.hsjeong.supporttools.utils.UrlConfigUtil
 import kotlin.system.exitProcess
@@ -37,12 +38,14 @@ class SupportToolsActivity : BaseActivity() {
 
     private fun init() {
         val showScreenName = PreferencesUtil.getScreenNameOverLayEnable(this)
+        val showLogcatViewer = PreferencesUtil.getLogcatViewerEnable(this)
         val showNetworkLog = PreferencesUtil.getNetworkLogEnable(this)
         val enableServerChange = PreferencesUtil.getUrlSwitchingEnable(this)
         val serverType = UrlConfigUtil.getServerType(this)
         viewModel.processIntent(
             SupportToolsIntent.Init(
                 showScreenName = showScreenName,
+                showLogcatViewer = showLogcatViewer,
                 showNetworkLog = showNetworkLog,
                 enableServerChange = enableServerChange,
                 serverType = serverType
@@ -68,27 +71,47 @@ class SupportToolsActivity : BaseActivity() {
 
     private fun applySetting() {
         val state = viewModel.state.value
+        val oldShowScreenName = PreferencesUtil.getScreenNameOverLayEnable(this)
+        val oldShowNetworkLog = PreferencesUtil.getNetworkLogEnable(this)
+        val oldEnableServerChange = PreferencesUtil.getUrlSwitchingEnable(this)
+        val oldServerType = UrlConfigUtil.getServerType(this)
+
         PreferencesUtil.setScreenNameOverLayEnable(application, state.showScreenName)
+        PreferencesUtil.setLogcatViewerEnable(application, state.showLogcatViewer)
         PreferencesUtil.setNetworkLogEnable(application, state.showNetworkLog)
         PreferencesUtil.setUrlSwitchingEnable(application, state.enableServerChange)
         UrlConfigUtil.setServerType(application, state.selectedServer)
 
-        val restartApp = {
-            val intent = packageManager.getLaunchIntentForPackage(packageName)
-            finishAffinity()
-            startActivity(intent)
-            exitProcess(0)
-        }
+        val needRestart = oldShowScreenName != state.showScreenName ||
+                    oldShowNetworkLog != state.showNetworkLog ||
+                    oldEnableServerChange != state.enableServerChange ||
+                    oldServerType != state.selectedServer
 
-        AlertDialog.Builder(this)
-            .setTitle(R.string.alert)
-            .setMessage(R.string.alert_restart_message)
-            .setPositiveButton(R.string.confirm) { dialog, which ->
-                restartApp()
+        if (needRestart) {
+            val restartApp = {
+                val intent = packageManager.getLaunchIntentForPackage(packageName)
+                finishAffinity()
+                startActivity(intent)
+                exitProcess(0)
             }
-            .setOnCancelListener {
-                restartApp()
+
+            AlertDialog.Builder(this)
+                .setTitle(R.string.alert)
+                .setMessage(R.string.alert_restart_message)
+                .setPositiveButton(R.string.confirm) { dialog, which ->
+                    restartApp()
+                }
+                .setOnCancelListener {
+                    restartApp()
+                }
+                .show()
+        } else {
+            if (state.showLogcatViewer) {
+                LogcatOverlayUtil.show(this)
+            } else {
+                LogcatOverlayUtil.remove()
             }
-            .show()
+            finish()
+        }
     }
 }
