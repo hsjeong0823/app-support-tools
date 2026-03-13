@@ -5,6 +5,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -33,7 +35,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowInsetsControllerCompat
 import com.hsjeong.supporttools.R
+import com.hsjeong.supporttools.ui.SupportToolsViewModel
+import com.hsjeong.supporttools.ui.common.ButtonType
 import com.hsjeong.supporttools.ui.common.CommonToolBarH48
+import com.hsjeong.supporttools.ui.common.CtaButton
+import com.hsjeong.supporttools.ui.common.CtaButtonStyle
 import com.hsjeong.supporttools.ui.common.noRippleClickable
 import com.hsjeong.supporttools.utils.LogcatOverlayUtil
 import kotlin.text.ifEmpty
@@ -68,6 +74,9 @@ fun LogViewerScreen(state: LogViewerState,
                 .padding(it)) {
                 LogViewerContentView(state = state, onUiEventListener = onUiEventListener)
             }
+        },
+        bottomBar = {
+            LogViewerBottomBarView(state = state, onUiEventListener = onUiEventListener)
         }
     )
 }
@@ -103,6 +112,21 @@ fun LogViewerToolBarView(onUiEventListener: ((LogViewerUiEvent) -> Unit)? = null
             )
         }
     )
+}
+
+@Composable
+fun LogViewerBottomBarView(state: LogViewerState, onUiEventListener: ((LogViewerUiEvent) -> Unit)? = null) {
+    Box(modifier = Modifier
+        .background(color = colorResource(R.color.c_ffffff))
+        .padding(10.dp)) {
+        CtaButton(
+            buttonType = ButtonType.FILLGREEN,
+            ctaButtonStyle = CtaButtonStyle.TYPE_MEDIUM,
+            text = stringResource(R.string.share),
+            enabled = true,
+            onClick = { onUiEventListener?.invoke(LogViewerUiEvent.ShareLog) }
+        )
+    }
 }
 
 @Composable

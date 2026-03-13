@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowInsetsControllerCompat
 import com.hsjeong.supporttools.R
+import com.hsjeong.supporttools.SupportTools
 import com.hsjeong.supporttools.ui.common.ButtonType
 import com.hsjeong.supporttools.ui.common.CommonCheckBox
 import com.hsjeong.supporttools.ui.common.CommonToolBarH48
@@ -128,7 +129,9 @@ fun SupportToolsContentView(viewModel: SupportToolsViewModel, onUiEventListener:
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        DebugSettingView(viewModel = viewModel, onUiEventListener = onUiEventListener)
+        if (SupportTools.appSupportConfig == null) {
+            DebugSettingView(viewModel = viewModel, onUiEventListener = onUiEventListener)
+        }
 
         // 서버 URL 변경 설정 View
         if (viewModel.state.value.enableServerChange) {

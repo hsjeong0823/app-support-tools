@@ -18,7 +18,9 @@ import kotlin.system.exitProcess
 class SupportToolsActivity : BaseActivity() {
     companion object {
         fun start(activity: Activity) {
-            val intent = Intent(activity, SupportToolsActivity::class.java)
+            val intent = Intent(activity, SupportToolsActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            }
             activity.startActivity(intent)
         }
     }

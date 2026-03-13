@@ -7,6 +7,7 @@ sealed class LogViewerUiEvent {
     data object Close : LogViewerUiEvent()
     data object Clear : LogViewerUiEvent()
     data class SearchLogData(val searchText: String) : LogViewerUiEvent()
+    data object ShareLog : LogViewerUiEvent()
 }
 
 // ViewModel로 전달되는 Intent 정의

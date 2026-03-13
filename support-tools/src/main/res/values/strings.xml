@@ -9,6 +9,8 @@
     <string name="confirm">확인</string>
     <string name="setting">설정</string>
     <string name="alert">알림</string>
+    <string name="save">Save</string>
+    <string name="share">Share</string>
 
     <string name="alert_restart_message">설정 적용을 위해 앱을 재시작 합니다.</string>
     <string name="preference_viewer_button">Preference Viewer</string>

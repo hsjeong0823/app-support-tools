@@ -5,18 +5,36 @@
     <application>
         <activity
             android:name="com.hsjeong.supporttools.ui.SupportToolsActivity"
+            android:launchMode="singleTop"
             android:exported="false" />
 
         <activity
             android:name="com.hsjeong.supporttools.ui.preferenceviewer.PreferenceViewerActivity"
+            android:launchMode="singleTop"
             android:exported="false" />
 
         <activity
             android:name="com.hsjeong.supporttools.ui.preferenceviewer.detail.PreferenceViewerDetailActivity"
+            android:launchMode="singleTop"
             android:exported="false" />
 
         <activity
             android:name="com.hsjeong.supporttools.ui.logviewer.LogViewerActivity"
+            android:launchMode="singleTop"
             android:exported="false"/>
+
+        <provider
+            android:name="com.hsjeong.supporttools.utils.SupportToolsFileProvider"
+            android:authorities="${applicationId}.supporttools.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <!--<meta-data
+                android:name="android.support.FILE_PATHS"
+                android:resource="@xml/support_tool_paths" />-->
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/support_tool_paths" />
+        </provider>
     </application>
+
 </manifest>

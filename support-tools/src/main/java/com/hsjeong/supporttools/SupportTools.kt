@@ -3,12 +3,19 @@ package com.hsjeong.supporttools
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.os.Build
+import android.os.Bundle
+import android.view.KeyEvent
+import android.view.KeyboardShortcutGroup
+import android.view.Menu
+import android.view.Window
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.chuckerteam.chucker.api.RetentionManager
+import com.hsjeong.supporttools.config.AppSupportConfig
 import com.hsjeong.supporttools.ui.SupportToolsActivity
 import com.hsjeong.supporttools.utils.LogcatOverlayUtil
 import com.hsjeong.supporttools.utils.ScreenNameOverlayUtil
@@ -28,20 +35,53 @@ import okhttp3.OkHttpClient
  */
 object SupportTools {
     private var isDebug = true
+    var appSupportConfig: AppSupportConfig? = null
+        private set
 
     @JvmStatic
-    fun initialize(application: Application, debugEnable: Boolean = true) {
+    @JvmOverloads
+    fun initialize(application: Application, debugEnable: Boolean = true, config: AppSupportConfig? = null) {
         isDebug = debugEnable
+        appSupportConfig = config
         if (isDebug) {
+            config?.let {
+                PreferencesUtil.setScreenNameOverLayEnable(application, config.enableScreenNameOverLay)
+                PreferencesUtil.setLogcatViewerEnable(application, config.enableLogViewer)
+                PreferencesUtil.setNetworkLogEnable(application, config.enableNetworkLog)
+                PreferencesUtil.setUrlSwitchingEnable(application, config.enableUrlSwitching)
+            }
+
             ProcessLifecycleOwner.get().lifecycle.addObserver(object :
                 DefaultLifecycleObserver {
                 override fun onStart(owner: LifecycleOwner) {
+                    if (PreferencesUtil.getLogcatViewerEnable(application)) {
+                        LogcatOverlayUtil.show(application)
+                    }
                 }
 
                 override fun onStop(owner: LifecycleOwner) {
                     LogcatOverlayUtil.remove()
                     WindowLogUtil.remove()
                 }
+            })
+
+            application.registerActivityLifecycleCallbacks(object :
+                Application.ActivityLifecycleCallbacks {
+                override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
+                override fun onActivityResumed(activity: Activity) {
+                    if (appSupportConfig == null) {
+                        val window = activity.window
+                        if (window.callback !is DebugKeyCallback) {
+                            val originCallback = window.callback
+                            window.callback = DebugKeyCallback(originCallback, activity)
+                        }
+                    }
+                }
+                override fun onActivityStarted(activity: Activity) {}
+                override fun onActivityPaused(activity: Activity) {}
+                override fun onActivityStopped(activity: Activity) {}
+                override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
+                override fun onActivityDestroyed(activity: Activity) {}
             })
 
             // 화면 액티비티명 노출 설정
@@ -93,5 +133,57 @@ object SupportTools {
     @JvmStatic
     fun showSupportToolsUi(activity: Activity) {
         SupportToolsActivity.start(activity)
+    }
+
+    private class DebugKeyCallback(private val origin: Window.Callback, private val activity: Activity) : Window.Callback by origin {
+        private var isVolumeUpPressed = false
+        private var isVolumeDownPressed = false
+        private var isTriggered = false
+
+        override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+            val keyCode = event.keyCode
+            val action = event.action
+
+            if (action == KeyEvent.ACTION_DOWN && event.repeatCount > 0) {
+                return origin.dispatchKeyEvent(event)
+            }
+
+            when (action) {
+                KeyEvent.ACTION_DOWN -> {
+                    if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) isVolumeUpPressed = true
+                    if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) isVolumeDownPressed = true
+                }
+
+                KeyEvent.ACTION_UP -> {
+                    if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) isVolumeUpPressed = false
+                    if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) isVolumeDownPressed = false
+
+                    if (!isVolumeUpPressed || !isVolumeDownPressed) {
+                        isTriggered = false
+                    }
+                }
+            }
+
+            if (isVolumeUpPressed && isVolumeDownPressed && !isTriggered) {
+                isTriggered = true
+                SupportToolsActivity.start(activity)
+                return true
+            }
+            return origin.dispatchKeyEvent(event)
+        }
+
+        override fun onProvideKeyboardShortcuts(
+            data: List<KeyboardShortcutGroup?>?,
+            menu: Menu?,
+            deviceId: Int
+        ) {
+            origin.onProvideKeyboardShortcuts(data, menu, deviceId)
+        }
+
+        override fun onPointerCaptureChanged(hasCapture: Boolean) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                origin.onPointerCaptureChanged(hasCapture)
+            }
+        }
     }
 }

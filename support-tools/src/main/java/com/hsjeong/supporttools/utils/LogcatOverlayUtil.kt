@@ -35,7 +35,7 @@ object LogcatOverlayUtil {
     }
 
     fun show(context: Context?) {
-        if (context == null) {
+        if (context == null || !PermissionUtil.checkOverlayPermission(context)) {
             return
         }
 
