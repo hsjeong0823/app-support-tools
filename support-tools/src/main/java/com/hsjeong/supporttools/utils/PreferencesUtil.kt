@@ -13,64 +13,64 @@ class PreferencesUtil() {
             return context.getSharedPreferences(Preference.PREFS_NAME, Context.MODE_PRIVATE)
         }
 
-        fun putBooleanPreferences(context: Context, key: String, value: Boolean) {
+        internal fun putBooleanPreferences(context: Context, key: String, value: Boolean) {
             getSharedPreferences(context).edit(true) { putBoolean(key, value) }
         }
 
-        fun putStringPreferences(context: Context, key: String, value: String) {
+        internal fun putStringPreferences(context: Context, key: String, value: String) {
             getSharedPreferences(context).edit(true) { putString(key, value) }
         }
 
-        fun getBooleanPreferences(context: Context, key: String, defaultValue: Boolean = false): Boolean {
+        internal fun getBooleanPreferences(context: Context, key: String, defaultValue: Boolean = false): Boolean {
             return getSharedPreferences(context).getBoolean(key, defaultValue)
         }
 
-        fun getStringPreferences(context: Context, key: String, defaultValue: String? = null): String? {
+        internal fun getStringPreferences(context: Context, key: String, defaultValue: String? = null): String? {
             return getSharedPreferences(context).getString(key, defaultValue)
         }
 
-        fun setScreenNameOverLayEnable(context: Context, boolean: Boolean) {
+        internal fun setScreenNameOverLayEnable(context: Context, boolean: Boolean) {
             PreferencesUtil.putBooleanPreferences(context, Preference.KEY_SCREEN_NAME_OVERLAY_ENABLE, boolean)
         }
 
-        fun getScreenNameOverLayEnable(context: Context): Boolean {
+        internal fun getScreenNameOverLayEnable(context: Context): Boolean {
             return PreferencesUtil.getBooleanPreferences(context, Preference.KEY_SCREEN_NAME_OVERLAY_ENABLE, true)
         }
 
-        fun setLogcatViewerEnable(context: Context, boolean: Boolean) {
+        internal fun setLogcatViewerEnable(context: Context, boolean: Boolean) {
             PreferencesUtil.putBooleanPreferences(context, Preference.KEY_LOGCAT_VIEWER_ENABLE, boolean)
         }
 
-        fun getLogcatViewerEnable(context: Context): Boolean {
+        internal fun getLogcatViewerEnable(context: Context): Boolean {
             return PreferencesUtil.getBooleanPreferences(context, Preference.KEY_LOGCAT_VIEWER_ENABLE, true)
         }
 
-        fun setLogcatViewerSearchWord(context: Context, value: String) {
+        internal fun setLogcatViewerSearchWord(context: Context, value: String) {
             PreferencesUtil.putStringPreferences(context, Preference.KEY_LOGCAT_VIEWER_SEARCH_WORD, value)
         }
 
-        fun getLogcatViewerSearchWord(context: Context): String? {
+        internal fun getLogcatViewerSearchWord(context: Context): String? {
             return PreferencesUtil.getStringPreferences(context, Preference.KEY_LOGCAT_VIEWER_SEARCH_WORD, "")
         }
 
-        fun setNetworkLogEnable(context: Context, boolean: Boolean) {
+        internal fun setNetworkLogEnable(context: Context, boolean: Boolean) {
             PreferencesUtil.putBooleanPreferences(context, Preference.KEY_NETWORK_LOG_ENABLE, boolean)
         }
 
-        fun getNetworkLogEnable(context: Context): Boolean {
+        internal fun getNetworkLogEnable(context: Context): Boolean {
             return PreferencesUtil.getBooleanPreferences(context, Preference.KEY_NETWORK_LOG_ENABLE, true)
         }
 
-        fun setUrlSwitchingEnable(context: Context, boolean: Boolean) {
+        internal fun setUrlSwitchingEnable(context: Context, boolean: Boolean) {
             PreferencesUtil.putBooleanPreferences(context, Preference.KEY_URL_SWITCHING_ENABLE, boolean)
         }
 
-        fun getUrlSwitchingEnable(context: Context): Boolean {
+        internal fun getUrlSwitchingEnable(context: Context): Boolean {
             return PreferencesUtil.getBooleanPreferences(context, Preference.KEY_URL_SWITCHING_ENABLE, true)
         }
 
         // SharedPreferences 파일 찾기
-        fun getPreferenceFiles(context: Context): List<String> {
+        internal fun getPreferenceFiles(context: Context): List<String> {
             val prefsDir = File(context.applicationInfo.dataDir, "shared_prefs")
             return if (prefsDir.exists() && prefsDir.isDirectory) {
                 prefsDir.list()?.map { it.replace(".xml", "") } ?: emptyList()
@@ -88,7 +88,7 @@ class PreferencesUtil() {
         enum class PrefType { STRING, INT, BOOLEAN, FLOAT, LONG, UNKNOWN }
 
         // SharedPreferences 읽기
-        fun getAllPrefs(context: Context, fileName: String): List<PreferenceItem> {
+        internal fun getAllPrefs(context: Context, fileName: String): List<PreferenceItem> {
             val prefs = context.getSharedPreferences(fileName, Context.MODE_PRIVATE)
             val allEntries = prefs.all
 
@@ -106,7 +106,7 @@ class PreferencesUtil() {
         }
 
         // SharedPreferences 수정
-        fun updatePref(context: Context, fileName: String, key: String, newValue: Any, type: PrefType) {
+        internal fun updatePref(context: Context, fileName: String, key: String, newValue: Any, type: PrefType) {
             val prefs = context.getSharedPreferences(fileName, Context.MODE_PRIVATE)
             prefs.edit(commit = true) {
                 when (type) {

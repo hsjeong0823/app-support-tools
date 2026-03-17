@@ -148,11 +148,11 @@ object WindowLogUtil {
         return rootView
     }
 
-    fun setViewVisibility(isVisible: Boolean) {
+    internal fun setViewVisibility(isVisible: Boolean) {
         rootViewRef?.get()?.isVisible = isVisible
     }
 
-    fun remove() {
+    internal fun remove() {
         try {
             val wm = windowManagerRef?.get()
             val root = rootViewRef?.get()

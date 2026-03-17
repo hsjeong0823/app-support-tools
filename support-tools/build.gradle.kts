@@ -92,9 +92,10 @@ dependencies {
 //    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     // okhttp
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    ("com.squareup.okhttp3:okhttp:4.12.0")
 
     // Chucker
-    debugImplementation("com.github.chuckerteam.chucker:library:4.1.0")
-    releaseImplementation("com.github.chuckerteam.chucker:library-no-op:4.1.0")
+    implementation("com.github.chuckerteam.chucker:library:4.1.0")
+//    debugImplementation("com.github.chuckerteam.chucker:library:4.1.0")
+//    releaseImplementation("com.github.chuckerteam.chucker:library-no-op:4.1.0")
 }

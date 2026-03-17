@@ -21,41 +21,57 @@ object UrlConfigUtil {
 
     private var serverType: ServerType = ServerType.DEV
     private val hostMap = mutableMapOf<String, UrlConfigData>()
+    private val baseUrlMap = mutableMapOf<String, UrlConfigData>()
 
     @JvmStatic
-    fun setUrlConfigData(list: List<UrlConfigData>) {
+    fun setUrlConfigData(list: List<UrlConfigData>, addUrlCompleteCallback: (() -> Unit)? = null) {
         hostMap.clear()
-        addUrlConfigData(list)
+        baseUrlMap.clear()
+        addUrlConfigData(list, addUrlCompleteCallback)
     }
 
     @JvmStatic
-    fun addUrlConfigData(list: List<UrlConfigData>) {
+    fun addUrlConfigData(list: List<UrlConfigData>, addUrlCompleteCallback: (() -> Unit)? = null) {
         list.forEach {
-            val host = "${it.scheme}://${it.baseUrl}".toHttpUrlOrNull()?.host ?: return@forEach
+            baseUrlMap[it.baseUrl] = it
+            val host = getUtlHost(it.scheme, it.baseUrl) ?: return@forEach
             hostMap[host] = it
         }
+        addUrlCompleteCallback?.invoke()
     }
 
     private fun findUrlConfigData(host: String): UrlConfigData? {
         return hostMap[host]
     }
 
+    @JvmStatic
     fun getUrls(serverType: ServerType): List<String> {
         return hostMap.values.mapNotNull { config ->
             config.targetUrls[serverType]
         }
     }
 
-    fun setServerType(context: Context, serverType: ServerType) {
+    @JvmStatic
+    fun getTargetUrlsMap(context: Context): Map<String, String> {
+        return baseUrlMap.mapValues { (baseUrl, config) ->
+            config.targetUrls[getServerType(context)] ?: baseUrl
+        }.filterValues { it.isNotEmpty() } // 주소가 비어있는 스펙은 제외
+    }
+
+    private fun getUtlHost(scheme: String, baseUrl: String): String? {
+        return "$scheme://$baseUrl".toHttpUrlOrNull()?.host
+    }
+
+    internal fun setServerType(context: Context, serverType: ServerType) {
         PreferencesUtil.putStringPreferences(context, Preference.KEY_SERVER_TYPE, serverType.name)
     }
 
-    fun getServerType(context: Context): ServerType {
+    internal fun getServerType(context: Context): ServerType {
         val name = PreferencesUtil.getStringPreferences(context, Preference.KEY_SERVER_TYPE, ServerType.DEV.name)
         return ServerType.valueOf(name!!)
     }
 
-    class UrlSwitchingInterceptor(private val context: Context) : Interceptor {
+    internal class UrlSwitchingInterceptor(private val context: Context) : Interceptor {
         override fun intercept(chain: Interceptor.Chain): Response {
             val request = chain.request()
             val originalUrl = request.url

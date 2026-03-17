@@ -34,7 +34,7 @@ object LogcatOverlayUtil {
         }
     }
 
-    fun show(context: Context?) {
+    internal fun show(context: Context?) {
         if (context == null || !PermissionUtil.checkOverlayPermission(context)) {
             return
         }
@@ -67,7 +67,7 @@ object LogcatOverlayUtil {
         }
     }
 
-    fun remove() {
+    internal fun remove() {
         try {
             val wm = windowManagerRef?.get()
             val button = buttonViewRef?.get()
@@ -96,7 +96,7 @@ object LogcatOverlayUtil {
         val level: LogLevel
     )
 
-    fun parseLogLevel(log: String): LogLevel {
+    internal fun parseLogLevel(log: String): LogLevel {
         return when {
             log.contains(" V/") -> LogLevel.VERBOSE
             log.contains(" D/") -> LogLevel.DEBUG
@@ -107,7 +107,7 @@ object LogcatOverlayUtil {
         }
     }
 
-    fun logColor(level: LogLevel): Int {
+    internal fun logColor(level: LogLevel): Int {
         return when (level) {
             LogLevel.VERBOSE -> Color.GRAY
             LogLevel.DEBUG -> Color.WHITE
@@ -121,7 +121,7 @@ object LogcatOverlayUtil {
     /**
      * 로그 읽기
      */
-    fun getLogs(): List<LogItemData> {
+    internal fun getLogs(): List<LogItemData> {
         val logs = mutableListOf<LogItemData>()
         try {
             val pid = android.os.Process.myPid()
@@ -154,7 +154,7 @@ object LogcatOverlayUtil {
     /**
      * 로그 초기화
      */
-    fun clearLogs() {
+    internal fun clearLogs() {
         Runtime.getRuntime().exec("logcat -c")
     }
 }

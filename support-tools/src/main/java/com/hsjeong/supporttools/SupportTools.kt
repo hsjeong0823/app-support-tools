@@ -9,6 +9,7 @@ import android.view.KeyEvent
 import android.view.KeyboardShortcutGroup
 import android.view.Menu
 import android.view.Window
+import android.widget.Toast
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
@@ -18,11 +19,11 @@ import com.chuckerteam.chucker.api.RetentionManager
 import com.hsjeong.supporttools.config.AppSupportConfig
 import com.hsjeong.supporttools.ui.SupportToolsActivity
 import com.hsjeong.supporttools.utils.LogcatOverlayUtil
-import com.hsjeong.supporttools.utils.ScreenNameOverlayUtil
-import com.hsjeong.supporttools.utils.WindowLogUtil
-import com.hsjeong.supporttools.utils.UrlConfigUtil
 import com.hsjeong.supporttools.utils.PreferencesUtil
+import com.hsjeong.supporttools.utils.ScreenNameOverlayUtil
+import com.hsjeong.supporttools.utils.UrlConfigUtil
 import com.hsjeong.supporttools.utils.UrlConfigUtil.UrlConfigData
+import com.hsjeong.supporttools.utils.WindowLogUtil
 import okhttp3.OkHttpClient
 
 /**
@@ -91,8 +92,17 @@ object SupportTools {
 
     // 서버 설정을 위한 url 값 설정
     @JvmStatic
-    fun setUrlConfigData(list: List<UrlConfigData>) {
-        UrlConfigUtil.setUrlConfigData(list)
+    fun setUrlConfigData(application: Application, list: List<UrlConfigData>, callback: ((targetUrlsMap: Map<String, String>) -> Unit)? = null) {
+        UrlConfigUtil.setUrlConfigData(list) {
+            val isNetworkSwitching = PreferencesUtil.getUrlSwitchingEnable(application)
+            if (isNetworkSwitching) {
+                val targetUrlsMap = UrlConfigUtil.getTargetUrlsMap(application)
+                if (!targetUrlsMap.isEmpty() && list.size == targetUrlsMap.size) {
+                    callback?.invoke(targetUrlsMap)
+                    Toast.makeText(application, "${UrlConfigUtil.getServerType(application)} 설정", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
     // 네트워크 및 서버 설정 (Chucker 및 서버 환경 변경)
