@@ -1,6 +1,6 @@
 package com.hsjeong.supporttools.ui.preferenceviewer.detail
 
-import com.hsjeong.supporttools.utils.PreferencesUtil.Companion.PreferenceItem
+import com.hsjeong.supporttools.utils.PreferenceItem
 
 // Activity로 전달되는 이벤트 정의
 sealed class PreferenceViewerDetailUiEvent {

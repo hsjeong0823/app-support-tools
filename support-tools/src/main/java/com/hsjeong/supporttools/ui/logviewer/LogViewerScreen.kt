@@ -5,8 +5,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,7 +14,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -35,13 +37,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowInsetsControllerCompat
 import com.hsjeong.supporttools.R
-import com.hsjeong.supporttools.ui.SupportToolsViewModel
 import com.hsjeong.supporttools.ui.common.ButtonType
 import com.hsjeong.supporttools.ui.common.CommonToolBarH48
 import com.hsjeong.supporttools.ui.common.CtaButton
 import com.hsjeong.supporttools.ui.common.CtaButtonStyle
 import com.hsjeong.supporttools.ui.common.noRippleClickable
-import com.hsjeong.supporttools.utils.LogcatOverlayUtil
+import com.hsjeong.supporttools.utils.LogcatOverlayManager
 import kotlin.text.ifEmpty
 
 @Composable
@@ -137,7 +138,20 @@ fun LogViewerContentView(state: LogViewerState, onUiEventListener: ((LogViewerUi
             value = state.searchText,
             onValueChange = { onUiEventListener?.invoke(LogViewerUiEvent.SearchLogData(it)) },
             label = { Text(state.searchText.ifEmpty { "Search Log" }) },
-            modifier = Modifier.fillMaxWidth().height(50.dp)
+            modifier = Modifier.fillMaxWidth().height(50.dp),
+            trailingIcon = {
+                if (state.searchText.isNotEmpty()) {
+                    IconButton(onClick = {
+                        onUiEventListener?.invoke(LogViewerUiEvent.SearchLogData(""))
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = "Clear",
+                            tint = colorResource(R.color.c_94000000) // 옅은 회색 계열
+                        )
+                    }
+                }
+            }
         )
 
         LazyColumn(
@@ -147,7 +161,7 @@ fun LogViewerContentView(state: LogViewerState, onUiEventListener: ((LogViewerUi
             items(state.searchedLogData) { logData ->
                 Text(
                     text = logData.log,
-                    color = Color(LogcatOverlayUtil.logColor(logData.level)),
+                    color = Color(LogcatOverlayManager.logColor(logData.level)),
                     fontSize = 12.sp,
                     modifier = Modifier.fillMaxWidth().padding(4.dp)
                 )

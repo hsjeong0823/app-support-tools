@@ -12,7 +12,7 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.lang.ref.WeakReference
 
-object LogcatOverlayUtil {
+object LogcatOverlayManager {
     private var windowManagerRef: WeakReference<WindowManager>? = null
     private var buttonViewRef: WeakReference<ImageView>? = null
 

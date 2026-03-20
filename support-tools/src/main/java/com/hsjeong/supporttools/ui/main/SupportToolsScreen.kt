@@ -1,4 +1,4 @@
-package com.hsjeong.supporttools.ui
+package com.hsjeong.supporttools.ui.main
 
 import android.app.Activity
 import androidx.compose.foundation.Image
@@ -40,7 +40,7 @@ import com.hsjeong.supporttools.ui.common.CommonToolBarH48
 import com.hsjeong.supporttools.ui.common.CtaButton
 import com.hsjeong.supporttools.ui.common.CtaButtonStyle
 import com.hsjeong.supporttools.ui.common.noRippleClickable
-import com.hsjeong.supporttools.utils.UrlConfigUtil
+import com.hsjeong.supporttools.utils.ServerType
 
 @Composable
 fun SupportToolsScreen(viewModel: SupportToolsViewModel,
@@ -139,8 +139,21 @@ fun SupportToolsContentView(viewModel: SupportToolsViewModel, onUiEventListener:
             ServerUrlSettingView(viewModel = viewModel, onUiEventListener = onUiEventListener)
         }
 
-        // Preference viewer 버튼 View
+        // DeepLink Tester 버튼 View
         Spacer(modifier = Modifier.height(26.dp))
+        Box(modifier = Modifier
+            .background(color = colorResource(R.color.c_ffffff))) {
+            CtaButton(
+                buttonType = ButtonType.FILLWHITE_BORDERGREEN,
+                ctaButtonStyle = CtaButtonStyle.TYPE_MEDIUM,
+                text = "DeepLink Tester",
+                enabled = true,
+                onClick = { onUiEventListener?.invoke(SupportToolsUiEvent.MoveDeepLinkTester) }
+            )
+        }
+
+        // Preference viewer 버튼 View
+        Spacer(modifier = Modifier.height(16.dp))
         Box(modifier = Modifier
             .background(color = colorResource(R.color.c_ffffff))) {
             CtaButton(
@@ -228,7 +241,7 @@ fun ServerUrlSettingView(viewModel: SupportToolsViewModel, onUiEventListener: ((
         fontSize = 20.sp,
         color = colorResource(R.color.c_000000))
 
-    UrlConfigUtil.ServerType.entries.forEach { serverType ->
+    ServerType.entries.forEach { serverType ->
         Row(
             modifier = Modifier
                 .fillMaxWidth()

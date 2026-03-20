@@ -3,7 +3,7 @@ package com.hsjeong.supporttools.ui.logviewer
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.hsjeong.supporttools.utils.LogcatOverlayUtil
+import com.hsjeong.supporttools.utils.LogcatOverlayManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +19,7 @@ class LogViewerViewModel(application: Application) : AndroidViewModel(applicatio
         when (intent) {
             is LogViewerIntent.LoadLogData -> {
                 viewModelScope.launch(Dispatchers.IO) { // 비동기 처리
-                    val logData = LogcatOverlayUtil.getLogs()
+                    val logData = LogcatOverlayManager.getLogs()
                     val searchedLogData = if (intent.searchText.isEmpty()) {
                         logData
                     } else {
@@ -42,7 +42,7 @@ class LogViewerViewModel(application: Application) : AndroidViewModel(applicatio
 
             is LogViewerIntent.ClearLogData -> {
                 viewModelScope.launch(Dispatchers.IO) {
-                    LogcatOverlayUtil.clearLogs()
+                    LogcatOverlayManager.clearLogs()
                     withContext(Dispatchers.Main) {
                         processIntent(LogViewerIntent.LoadLogData(_state.value.searchText))
                     }

@@ -6,18 +6,19 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.Interceptor
 import okhttp3.Response
 
-object UrlConfigUtil {
-    enum class ServerType {
-        DEV,
-        STG,
-        REAL
-    }
+enum class ServerType {
+    DEV,
+    STG,
+    REAL
+}
 
-    data class UrlConfigData(
-        @JvmField val scheme: String = "https",
-        @JvmField val baseUrl: String,
-        @JvmField val targetUrls: Map<ServerType, String>
-    )
+data class UrlConfigData(
+    @JvmField val scheme: String = "https",
+    @JvmField val baseUrl: String,
+    @JvmField val targetUrls: Map<ServerType, String>
+)
+
+object UrlConfigManager {
 
     private var serverType: ServerType = ServerType.DEV
     private val hostMap = mutableMapOf<String, UrlConfigData>()

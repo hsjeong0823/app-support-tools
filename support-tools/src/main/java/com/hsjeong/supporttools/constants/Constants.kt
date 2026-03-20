@@ -9,5 +9,6 @@ object Constants {
         const val KEY_URL_SWITCHING_ENABLE = "url_switching_enable"
         const val KEY_LOGCAT_VIEWER_ENABLE = "logcat_viewer_enable"
         const val KEY_LOGCAT_VIEWER_SEARCH_WORD = "logcat_viewer_search_word"
+        const val KEY_DEEPLINK_SEARCH_URL = "deeplink_search_url"
     }
 }

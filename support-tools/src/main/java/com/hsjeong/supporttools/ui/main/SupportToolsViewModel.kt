@@ -1,8 +1,8 @@
-package com.hsjeong.supporttools.ui
+package com.hsjeong.supporttools.ui.main
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.hsjeong.supporttools.utils.UrlConfigUtil
+import com.hsjeong.supporttools.utils.UrlConfigManager
 
 class SupportToolsViewModel() : ViewModel() {
     private val _state = mutableStateOf(SupportToolsState())
@@ -13,7 +13,7 @@ class SupportToolsViewModel() : ViewModel() {
             is SupportToolsIntent.Init -> {
                 _state.value = _state.value.copy(
                     selectedServer = intent.serverType,
-                    selectUrls = UrlConfigUtil.getUrls(intent.serverType),
+                    selectUrls = UrlConfigManager.getUrls(intent.serverType),
                     showScreenName = intent.showScreenName,
                     showLogcatViewer = intent.showLogcatViewer,
                     showNetworkLog = intent.showNetworkLog,
@@ -23,7 +23,7 @@ class SupportToolsViewModel() : ViewModel() {
             is SupportToolsIntent.SelectServer -> {
                 _state.value = _state.value.copy(
                     selectedServer = intent.serverType,
-                    selectUrls = UrlConfigUtil.getUrls(intent.serverType)
+                    selectUrls = UrlConfigManager.getUrls(intent.serverType)
                 )
             }
             is SupportToolsIntent.ToggleScreenName -> {

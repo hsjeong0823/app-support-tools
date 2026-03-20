@@ -4,7 +4,7 @@
 
     <application>
         <activity
-            android:name="com.hsjeong.supporttools.ui.SupportToolsActivity"
+            android:name="com.hsjeong.supporttools.ui.main.SupportToolsActivity"
             android:launchMode="singleTop"
             android:exported="false" />
 
@@ -20,6 +20,11 @@
 
         <activity
             android:name="com.hsjeong.supporttools.ui.logviewer.LogViewerActivity"
+            android:launchMode="singleTop"
+            android:exported="false"/>
+
+        <activity
+            android:name="com.hsjeong.supporttools.ui.deeplinktester.DeepLinkTesterActivity"
             android:launchMode="singleTop"
             android:exported="false"/>
 

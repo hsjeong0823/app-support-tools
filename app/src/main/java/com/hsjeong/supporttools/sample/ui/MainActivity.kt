@@ -12,7 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.hsjeong.supporttools.ui.SupportToolsActivity
+import com.hsjeong.supporttools.ui.main.SupportToolsActivity
 import com.hsjeong.supporttools.sample.ui.theme.AppsupporttoolsTheme
 
 class MainActivity : ComponentActivity() {
@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
                     Greeting(
                         name = "Android",
                         modifier = Modifier.padding(innerPadding).clickable(onClick = {
-                            SupportToolsActivity.start(this)
+                            _root_ide_package_.com.hsjeong.supporttools.ui.main.SupportToolsActivity.start(this)
                         })
                     )
                 }

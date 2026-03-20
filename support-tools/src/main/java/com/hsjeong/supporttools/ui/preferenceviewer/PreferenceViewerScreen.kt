@@ -14,7 +14,11 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -98,7 +102,20 @@ fun PreferenceViewerContentView(state: PreferenceViewerState, onUiEventListener:
             value = state.searchText,
             onValueChange = { onUiEventListener?.invoke(PreferenceViewerUiEvent.SearchPreferenceFiles(it)) },
             label = { Text(state.searchText.ifEmpty { "Search Files" }) },
-            modifier = Modifier.fillMaxWidth().height(50.dp)
+            modifier = Modifier.fillMaxWidth().height(50.dp),
+            trailingIcon = {
+                if (state.searchText.isNotEmpty()) {
+                    IconButton(onClick = {
+                        onUiEventListener?.invoke(PreferenceViewerUiEvent.SearchPreferenceFiles(""))
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = "Clear",
+                            tint = colorResource(R.color.c_94000000) // 옅은 회색 계열
+                        )
+                    }
+                }
+            }
         )
 
         LazyColumn {

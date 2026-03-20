@@ -16,8 +16,12 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -45,7 +49,7 @@ import com.hsjeong.supporttools.ui.common.CommonToolBarH48
 import com.hsjeong.supporttools.ui.common.CtaButton
 import com.hsjeong.supporttools.ui.common.CtaButtonStyle
 import com.hsjeong.supporttools.ui.common.noRippleClickable
-import com.hsjeong.supporttools.utils.PreferencesUtil.Companion.PreferenceItem
+import com.hsjeong.supporttools.utils.PreferenceItem
 
 
 @Composable
@@ -114,7 +118,20 @@ fun PreferenceViewerDetailContentView(state: PreferenceViewerDetailState, onUiEv
             value = state.searchText,
             onValueChange = { onUiEventListener?.invoke(PreferenceViewerDetailUiEvent.SearchPreferenceItems(it)) },
             label = { Text("Search Data") },
-            modifier = Modifier.fillMaxWidth().height(50.dp)
+            modifier = Modifier.fillMaxWidth().height(50.dp),
+            trailingIcon = {
+                if (state.searchText.isNotEmpty()) {
+                    IconButton(onClick = {
+                        onUiEventListener?.invoke(PreferenceViewerDetailUiEvent.SearchPreferenceItems(""))
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = "Clear",
+                            tint = colorResource(R.color.c_94000000) // 옅은 회색 계열
+                        )
+                    }
+                }
+            }
         )
 
         LazyColumn {

@@ -10,12 +10,12 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 
 // ==========================================
-// ScreenNameOverlayUtil (현재 액티비티 이름을 화면에 플로팅 위한 Util)
+// ScreenNameOverlayManager (현재 액티비티 이름을 화면에 플로팅 위한 Manager)
 // - 권한: manifest에 권한 추가 필요 => <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-// - 초기화: Application.onCreate()에서 DebugTools.ScreenNameOverlayUtil.initialize()
+// - 초기화: Application.onCreate()에서 DebugTools.ScreenNameOverlayManager.initialize()
 // - 라이브러리 추가 필요 : implementation 'androidx.lifecycle:lifecycle-process:2.10.0'
 // ==========================================
-object ScreenNameOverlayUtil {
+object ScreenNameOverlayManager {
     private val fragmentCallback = object : FragmentManager.FragmentLifecycleCallbacks() {
         override fun onFragmentResumed(fm: FragmentManager, fragment: Fragment) {
             super.onFragmentResumed(fm, fragment)
@@ -58,10 +58,10 @@ object ScreenNameOverlayUtil {
         context?.let {
             val isShowScreenName = PreferencesUtil.getScreenNameOverLayEnable(context)
             if (!isShowScreenName) {
-                WindowLogUtil.remove()
+                WindowLogManager.remove()
                 return
             }
-            WindowLogUtil.showWindowStatus(context, message)
+            WindowLogManager.showWindowStatus(context, message)
         }
     }
 }

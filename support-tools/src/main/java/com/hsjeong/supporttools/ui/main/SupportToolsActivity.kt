@@ -1,4 +1,4 @@
-package com.hsjeong.supporttools.ui
+package com.hsjeong.supporttools.ui.main
 
 import android.app.Activity
 import android.app.AlertDialog
@@ -9,10 +9,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import com.hsjeong.supporttools.R
 import com.hsjeong.supporttools.ui.base.BaseActivity
+import com.hsjeong.supporttools.ui.deeplinktester.DeepLinkTesterActivity
 import com.hsjeong.supporttools.ui.preferenceviewer.PreferenceViewerActivity
-import com.hsjeong.supporttools.utils.LogcatOverlayUtil
+import com.hsjeong.supporttools.utils.LogcatOverlayManager
 import com.hsjeong.supporttools.utils.PreferencesUtil
-import com.hsjeong.supporttools.utils.UrlConfigUtil
+import com.hsjeong.supporttools.utils.UrlConfigManager
 import kotlin.system.exitProcess
 
 class SupportToolsActivity : BaseActivity() {
@@ -43,7 +44,7 @@ class SupportToolsActivity : BaseActivity() {
         val showLogcatViewer = PreferencesUtil.getLogcatViewerEnable(this)
         val showNetworkLog = PreferencesUtil.getNetworkLogEnable(this)
         val enableServerChange = PreferencesUtil.getUrlSwitchingEnable(this)
-        val serverType = UrlConfigUtil.getServerType(this)
+        val serverType = UrlConfigManager.getServerType(this)
         viewModel.processIntent(
             SupportToolsIntent.Init(
                 showScreenName = showScreenName,
@@ -68,6 +69,10 @@ class SupportToolsActivity : BaseActivity() {
             SupportToolsUiEvent.MovePreferenceViewer -> {
                 PreferenceViewerActivity.start(this)
             }
+
+            SupportToolsUiEvent.MoveDeepLinkTester -> {
+                DeepLinkTesterActivity.start(this)
+            }
         }
     }
 
@@ -76,13 +81,13 @@ class SupportToolsActivity : BaseActivity() {
         val oldShowScreenName = PreferencesUtil.getScreenNameOverLayEnable(this)
         val oldShowNetworkLog = PreferencesUtil.getNetworkLogEnable(this)
         val oldEnableServerChange = PreferencesUtil.getUrlSwitchingEnable(this)
-        val oldServerType = UrlConfigUtil.getServerType(this)
+        val oldServerType = UrlConfigManager.getServerType(this)
 
         PreferencesUtil.setScreenNameOverLayEnable(application, state.showScreenName)
         PreferencesUtil.setLogcatViewerEnable(application, state.showLogcatViewer)
         PreferencesUtil.setNetworkLogEnable(application, state.showNetworkLog)
         PreferencesUtil.setUrlSwitchingEnable(application, state.enableServerChange)
-        UrlConfigUtil.setServerType(application, state.selectedServer)
+        UrlConfigManager.setServerType(application, state.selectedServer)
 
         val needRestart = oldShowScreenName != state.showScreenName ||
                     oldShowNetworkLog != state.showNetworkLog ||
@@ -109,9 +114,9 @@ class SupportToolsActivity : BaseActivity() {
                 .show()
         } else {
             if (state.showLogcatViewer) {
-                LogcatOverlayUtil.show(this)
+                LogcatOverlayManager.show(this)
             } else {
-                LogcatOverlayUtil.remove()
+                LogcatOverlayManager.remove()
             }
             finish()
         }

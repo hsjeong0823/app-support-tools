@@ -1,6 +1,6 @@
 package com.hsjeong.supporttools.ui.logviewer
 
-import com.hsjeong.supporttools.utils.LogcatOverlayUtil
+import com.hsjeong.supporttools.utils.LogcatOverlayManager
 
 // Activity로 전달되는 이벤트 정의
 sealed class LogViewerUiEvent {
@@ -19,7 +19,7 @@ sealed class LogViewerIntent {
 
 // Compose에서 사용되는 State 정의
 data class LogViewerState(
-    val logData: List<LogcatOverlayUtil.LogItemData> = emptyList(),
-    val searchedLogData: List<LogcatOverlayUtil.LogItemData> = emptyList(), // 화면에 보일 필터링된 데이터
+    val logData: List<LogcatOverlayManager.LogItemData> = emptyList(),
+    val searchedLogData: List<LogcatOverlayManager.LogItemData> = emptyList(), // 화면에 보일 필터링된 데이터
     val searchText: String = ""                                             // 현재 검색어
 )

@@ -17,21 +17,23 @@ import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.chuckerteam.chucker.api.RetentionManager
 import com.hsjeong.supporttools.config.AppSupportConfig
-import com.hsjeong.supporttools.ui.SupportToolsActivity
-import com.hsjeong.supporttools.utils.LogcatOverlayUtil
+import com.hsjeong.supporttools.ui.main.SupportToolsActivity
+import com.hsjeong.supporttools.utils.DeepLinkData
+import com.hsjeong.supporttools.utils.DeepLinkManager
+import com.hsjeong.supporttools.utils.LogcatOverlayManager
 import com.hsjeong.supporttools.utils.PreferencesUtil
-import com.hsjeong.supporttools.utils.ScreenNameOverlayUtil
-import com.hsjeong.supporttools.utils.UrlConfigUtil
-import com.hsjeong.supporttools.utils.UrlConfigUtil.UrlConfigData
-import com.hsjeong.supporttools.utils.WindowLogUtil
+import com.hsjeong.supporttools.utils.ScreenNameOverlayManager
+import com.hsjeong.supporttools.utils.UrlConfigData
+import com.hsjeong.supporttools.utils.UrlConfigManager
+import com.hsjeong.supporttools.utils.WindowLogManager
 import okhttp3.OkHttpClient
 
 /**
  * [SupportTools] - 앱 개발 및 테스트를 위한 통합 디버깅 도구 모음
  * * ## 포함된 도구
- * - [UrlConfigUtil] : 네트워크 인터셉터 및 서버 설정 (Chucker 라이브러리 필요)
- * - [ScreenNameOverlayUtil] : 현재 액티비티 이름을 화면에 플로팅
- * - [WindowLogUtil] : 실시간 로그 스택 오버레이
+ * - [UrlConfigManager] : 네트워크 인터셉터 및 서버 설정 (Chucker 라이브러리 필요)
+ * - [ScreenNameOverlayManager] : 현재 액티비티 이름을 화면에 플로팅
+ * - [WindowLogManager] : 실시간 로그 스택 오버레이
  * - [PreferencesUtil] : PreferenceUtil
  */
 object SupportTools {
@@ -56,13 +58,13 @@ object SupportTools {
                 DefaultLifecycleObserver {
                 override fun onStart(owner: LifecycleOwner) {
                     if (PreferencesUtil.getLogcatViewerEnable(application)) {
-                        LogcatOverlayUtil.show(application)
+                        LogcatOverlayManager.show(application)
                     }
                 }
 
                 override fun onStop(owner: LifecycleOwner) {
-                    LogcatOverlayUtil.remove()
-                    WindowLogUtil.remove()
+                    LogcatOverlayManager.remove()
+                    WindowLogManager.remove()
                 }
             })
 
@@ -86,20 +88,20 @@ object SupportTools {
             })
 
             // 화면 액티비티명 노출 설정
-            ScreenNameOverlayUtil.initialize(application)
+            ScreenNameOverlayManager.initialize(application)
         }
     }
 
     // 서버 설정을 위한 url 값 설정
     @JvmStatic
     fun setUrlConfigData(application: Application, list: List<UrlConfigData>, callback: ((targetUrlsMap: Map<String, String>) -> Unit)? = null) {
-        UrlConfigUtil.setUrlConfigData(list) {
+        UrlConfigManager.setUrlConfigData(list) {
             val isNetworkSwitching = PreferencesUtil.getUrlSwitchingEnable(application)
             if (isNetworkSwitching) {
-                val targetUrlsMap = UrlConfigUtil.getTargetUrlsMap(application)
+                val targetUrlsMap = UrlConfigManager.getTargetUrlsMap(application)
                 if (!targetUrlsMap.isEmpty() && list.size == targetUrlsMap.size) {
                     callback?.invoke(targetUrlsMap)
-                    Toast.makeText(application, "${UrlConfigUtil.getServerType(application)} 설정", Toast.LENGTH_LONG).show()
+                    Toast.makeText(application, "${UrlConfigManager.getServerType(application)} 설정", Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -119,7 +121,7 @@ object SupportTools {
         val isNetworkSwitching = PreferencesUtil.getUrlSwitchingEnable(context)
 
         if (isNetworkSwitching) {
-            okHttpBuilder.addInterceptor(UrlConfigUtil.UrlSwitchingInterceptor(context))
+            okHttpBuilder.addInterceptor(UrlConfigManager.UrlSwitchingInterceptor(context))
         }
 
         if (isNetworkLog) {
@@ -143,6 +145,15 @@ object SupportTools {
     @JvmStatic
     fun showSupportToolsUi(activity: Activity) {
         SupportToolsActivity.start(activity)
+    }
+
+    // 딥링크 테스터에서 보여줄 규격 리스트를 설정
+    @JvmStatic
+    fun setDeepLinkData(list: List<DeepLinkData>? = null) {
+        if (list.isNullOrEmpty()) {
+            return
+        }
+        DeepLinkManager.setDeepLinkList(list)
     }
 
     private class DebugKeyCallback(private val origin: Window.Callback, private val activity: Activity) : Window.Callback by origin {

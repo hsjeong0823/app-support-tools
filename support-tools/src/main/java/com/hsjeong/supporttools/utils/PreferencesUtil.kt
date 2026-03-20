@@ -7,7 +7,15 @@ import androidx.core.content.edit
 import com.hsjeong.supporttools.constants.Constants.Preference
 import java.io.File
 
-class PreferencesUtil() {
+data class PreferenceItem(
+    val key: String,
+    val value: Any?,
+    val type: PrefType
+)
+
+enum class PrefType { STRING, INT, BOOLEAN, FLOAT, LONG, UNKNOWN }
+
+class PreferencesUtil {
     companion object {
         private fun getSharedPreferences(context: Context): SharedPreferences {
             return context.getSharedPreferences(Preference.PREFS_NAME, Context.MODE_PRIVATE)
@@ -30,43 +38,51 @@ class PreferencesUtil() {
         }
 
         internal fun setScreenNameOverLayEnable(context: Context, boolean: Boolean) {
-            PreferencesUtil.putBooleanPreferences(context, Preference.KEY_SCREEN_NAME_OVERLAY_ENABLE, boolean)
+            putBooleanPreferences(context, Preference.KEY_SCREEN_NAME_OVERLAY_ENABLE, boolean)
         }
 
         internal fun getScreenNameOverLayEnable(context: Context): Boolean {
-            return PreferencesUtil.getBooleanPreferences(context, Preference.KEY_SCREEN_NAME_OVERLAY_ENABLE, true)
+            return getBooleanPreferences(context, Preference.KEY_SCREEN_NAME_OVERLAY_ENABLE, true)
         }
 
         internal fun setLogcatViewerEnable(context: Context, boolean: Boolean) {
-            PreferencesUtil.putBooleanPreferences(context, Preference.KEY_LOGCAT_VIEWER_ENABLE, boolean)
+            putBooleanPreferences(context, Preference.KEY_LOGCAT_VIEWER_ENABLE, boolean)
         }
 
         internal fun getLogcatViewerEnable(context: Context): Boolean {
-            return PreferencesUtil.getBooleanPreferences(context, Preference.KEY_LOGCAT_VIEWER_ENABLE, true)
+            return getBooleanPreferences(context, Preference.KEY_LOGCAT_VIEWER_ENABLE, true)
         }
 
         internal fun setLogcatViewerSearchWord(context: Context, value: String) {
-            PreferencesUtil.putStringPreferences(context, Preference.KEY_LOGCAT_VIEWER_SEARCH_WORD, value)
+            putStringPreferences(context, Preference.KEY_LOGCAT_VIEWER_SEARCH_WORD, value)
         }
 
         internal fun getLogcatViewerSearchWord(context: Context): String? {
-            return PreferencesUtil.getStringPreferences(context, Preference.KEY_LOGCAT_VIEWER_SEARCH_WORD, "")
+            return getStringPreferences(context, Preference.KEY_LOGCAT_VIEWER_SEARCH_WORD, "")
         }
 
         internal fun setNetworkLogEnable(context: Context, boolean: Boolean) {
-            PreferencesUtil.putBooleanPreferences(context, Preference.KEY_NETWORK_LOG_ENABLE, boolean)
+            putBooleanPreferences(context, Preference.KEY_NETWORK_LOG_ENABLE, boolean)
         }
 
         internal fun getNetworkLogEnable(context: Context): Boolean {
-            return PreferencesUtil.getBooleanPreferences(context, Preference.KEY_NETWORK_LOG_ENABLE, true)
+            return getBooleanPreferences(context, Preference.KEY_NETWORK_LOG_ENABLE, true)
         }
 
         internal fun setUrlSwitchingEnable(context: Context, boolean: Boolean) {
-            PreferencesUtil.putBooleanPreferences(context, Preference.KEY_URL_SWITCHING_ENABLE, boolean)
+            putBooleanPreferences(context, Preference.KEY_URL_SWITCHING_ENABLE, boolean)
         }
 
         internal fun getUrlSwitchingEnable(context: Context): Boolean {
-            return PreferencesUtil.getBooleanPreferences(context, Preference.KEY_URL_SWITCHING_ENABLE, true)
+            return getBooleanPreferences(context, Preference.KEY_URL_SWITCHING_ENABLE, true)
+        }
+
+        internal fun setDeeplinkSearchUrl(context: Context, value: String) {
+            putStringPreferences(context, Preference.KEY_DEEPLINK_SEARCH_URL, value)
+        }
+
+        internal fun getDeeplinkSearchUrl(context: Context): String? {
+            return getStringPreferences(context, Preference.KEY_DEEPLINK_SEARCH_URL, "")
         }
 
         // SharedPreferences 파일 찾기
@@ -78,14 +94,6 @@ class PreferencesUtil() {
                 emptyList()
             }
         }
-
-        data class PreferenceItem(
-            val key: String,
-            val value: Any?,
-            val type: PrefType
-        )
-
-        enum class PrefType { STRING, INT, BOOLEAN, FLOAT, LONG, UNKNOWN }
 
         // SharedPreferences 읽기
         internal fun getAllPrefs(context: Context, fileName: String): List<PreferenceItem> {

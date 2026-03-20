@@ -1,11 +1,9 @@
 package com.hsjeong.supporttools.utils
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.os.Build
-import android.provider.Settings
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -13,13 +11,11 @@ import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.graphics.toColorInt
-import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import java.lang.ref.WeakReference
 
-object WindowLogUtil {
+object WindowLogManager {
     // 로그 모드 정의
     enum class LogMode {
         SINGLE_LINE, // 단순 현재 화면 이름 (한 줄, 터치 차단)
