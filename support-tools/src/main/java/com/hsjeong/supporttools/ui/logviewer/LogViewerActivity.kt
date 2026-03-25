@@ -33,6 +33,11 @@ class LogViewerActivity : BaseActivity() {
             context.startActivity(intent)
         }
 
+        fun start(context: Context) {
+            val intent = Intent(context, LogViewerActivity::class.java)
+            context.startActivity(intent)
+        }
+
         const val FILE_NAME = "support_log.txt"
     }
 

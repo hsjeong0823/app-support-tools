@@ -10,6 +10,7 @@ import androidx.activity.viewModels
 import com.hsjeong.supporttools.R
 import com.hsjeong.supporttools.ui.base.BaseActivity
 import com.hsjeong.supporttools.ui.deeplinktester.DeepLinkTesterActivity
+import com.hsjeong.supporttools.ui.logviewer.LogViewerActivity
 import com.hsjeong.supporttools.ui.preferenceviewer.PreferenceViewerActivity
 import com.hsjeong.supporttools.utils.LogcatOverlayManager
 import com.hsjeong.supporttools.utils.PreferencesUtil
@@ -72,6 +73,10 @@ class SupportToolsActivity : BaseActivity() {
 
             SupportToolsUiEvent.MoveDeepLinkTester -> {
                 DeepLinkTesterActivity.start(this)
+            }
+
+            SupportToolsUiEvent.MoveLogViewer -> {
+                LogViewerActivity.start(this)
             }
         }
     }

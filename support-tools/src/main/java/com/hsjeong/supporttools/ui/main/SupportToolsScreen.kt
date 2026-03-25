@@ -139,8 +139,21 @@ fun SupportToolsContentView(viewModel: SupportToolsViewModel, onUiEventListener:
             ServerUrlSettingView(viewModel = viewModel, onUiEventListener = onUiEventListener)
         }
 
-        // DeepLink Tester 버튼 View
+        // Log viewer 버튼 View
         Spacer(modifier = Modifier.height(26.dp))
+        Box(modifier = Modifier
+            .background(color = colorResource(R.color.c_ffffff))) {
+            CtaButton(
+                buttonType = ButtonType.FILLWHITE_BORDERGREEN,
+                ctaButtonStyle = CtaButtonStyle.TYPE_MEDIUM,
+                text = stringResource(R.string.log_viewer_screen_title),
+                enabled = true,
+                onClick = { onUiEventListener?.invoke(SupportToolsUiEvent.MovePreferenceViewer) }
+            )
+        }
+
+        // DeepLink Tester 버튼 View
+        Spacer(modifier = Modifier.height(16.dp))
         Box(modifier = Modifier
             .background(color = colorResource(R.color.c_ffffff))) {
             CtaButton(
@@ -198,7 +211,7 @@ fun DebugSettingView(viewModel: SupportToolsViewModel, onUiEventListener: ((Supp
         },
         modifier = Modifier.padding(top = 10.dp)
     ) {
-        Text(text = "로그 뷰어 설정",
+        Text(text = "로그 뷰어 바로가기 설정",
             fontSize = 14.sp,
             color = colorResource(R.color.c_000000),
             modifier = Modifier.padding(start = 10.dp))

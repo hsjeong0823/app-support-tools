@@ -9,7 +9,7 @@ import okhttp3.Response
 enum class ServerType {
     DEV,
     STG,
-    REAL
+    REAL,
 }
 
 data class UrlConfigData(
