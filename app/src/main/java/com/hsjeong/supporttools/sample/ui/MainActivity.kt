@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
                     Greeting(
                         name = "Android",
                         modifier = Modifier.padding(innerPadding).clickable(onClick = {
-                            _root_ide_package_.com.hsjeong.supporttools.ui.main.SupportToolsActivity.start(this)
+                            SupportToolsActivity.start(this)
                         })
                     )
                 }
