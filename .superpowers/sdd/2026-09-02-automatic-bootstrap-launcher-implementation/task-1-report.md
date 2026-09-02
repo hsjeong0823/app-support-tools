@@ -66,6 +66,15 @@ Smallest proposed test: in a disposable working copy or temporary Gradle init-sc
 - The aggregate command still exits RED at `:app:lintVitalAnalyzeRelease` with the same `KaCallableMemberCall` / `NonNullableMutableLiveDataDetector` ICCE. The app's own version-catalog `androidx.lifecycle:lifecycle-runtime-ktx` remains at 2.10.0, so the support-tools-only correction does not change the app release lint classpath.
 - The 2.8.3 support-tools correction is retained and committed separately; no Starbucks files were touched.
 
+## Project-wide lifecycle alignment verification
+
+- The RED evidence was `:app:lintVitalAnalyzeRelease` failing with the same lifecycle lint ICCE while the app catalog still selected lifecycle 2.10.0.
+- Changed only `lifecycleProcess` and `lifecycleRuntimeKtx` in `gradle/libs.versions.toml` from `2.10.0` to `2.8.3`; the active support-tools literal was already 2.8.3.
+- Focused command `./gradlew :app:lintVitalAnalyzeRelease --stacktrace`: **GREEN**, `BUILD SUCCESSFUL`.
+- Full verification `./gradlew --version`: **GREEN**, reports Gradle 8.9.
+- Full verification `./gradlew :support-tools:testDebugUnitTest :support-tools:assembleDebug :app:assembleDebug :app:assembleRelease`: **GREEN**, `BUILD SUCCESSFUL`. All requested tasks completed, including app release lint and assemble.
+- Committed the catalog alignment as a new commit; no Starbucks files were touched.
+
 ## Follow-up investigation: why lifecycle 2.9.2 stayed RED
 
 The cached metadata explains the unchanged failure. `lifecycle-process:2.9.2` is a real selected artifact (its POM declares `lifecycle-runtime:[2.9.2]` and the lifecycle family constraints at `2.9.2`), but its own dependency metadata requires `org.jetbrains.kotlin:kotlin-stdlib:2.0.21`. The `2.10.0` POM likewise requires Kotlin stdlib `2.0.21`. Thus changing only `lifecycle-process` from 2.10.0 to 2.9.2 does not remove the Kotlin 2.0.21 runtime from the lint analysis classpath, which is consistent with the identical ICCE.
