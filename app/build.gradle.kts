@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.hsjeong.supporttools.sample"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.hsjeong.supporttools.sample"
