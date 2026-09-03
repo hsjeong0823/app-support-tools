@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "services": [
+    {
+      "id": "api",
+      "sourceAuthorities": [
+        "dev-api.example.test",
+        "test-api.example.test",
+        "dr-api.example.test"
+      ],
+      "targets": {
+        "DEV": "dev-api.example.test",
+        "STG": "stg-api.example.test",
+        "REAL": "api.example.test"
+      }
+    }
+  ]
+}

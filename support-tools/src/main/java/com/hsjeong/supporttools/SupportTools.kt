@@ -11,6 +11,7 @@ import android.view.KeyboardShortcutGroup
 import android.view.Menu
 import android.view.Window
 import android.widget.Toast
+import androidx.annotation.RawRes
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
@@ -154,6 +155,27 @@ object SupportTools {
             }
         }
     }
+
+    @JvmStatic
+    fun loadEnvironmentConfig(context: Context, @RawRes resourceId: Int): Boolean =
+        try {
+            context.resources.openRawResource(resourceId).bufferedReader().use {
+                UrlConfigManager.installEnvironmentConfig(it.readText())
+            }
+        } catch (t: Throwable) {
+            Log.e(TAG, "Failed to load environment config", t)
+            UrlConfigManager.clearEnvironmentConfig()
+            false
+        }
+
+    @JvmStatic
+    fun resolveAuthority(context: Context, originalAuthority: String): String =
+        try {
+            UrlConfigManager.resolveAuthority(context.applicationContext, originalAuthority)
+        } catch (t: Throwable) {
+            Log.e(TAG, "Failed to resolve authority", t)
+            originalAuthority
+        }
 
     // 네트워크 및 서버 설정 (Chucker 및 서버 환경 변경)
     @JvmStatic

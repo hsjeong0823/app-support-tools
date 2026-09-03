@@ -2,6 +2,9 @@ package com.hsjeong.supporttools.utils
 
 import android.content.Context
 import com.hsjeong.supporttools.constants.Constants.Preference
+import com.hsjeong.supporttools.environment.EnvironmentAuthorityResolver
+import com.hsjeong.supporttools.environment.EnvironmentConfigParseResult
+import com.hsjeong.supporttools.environment.EnvironmentConfigParser
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -23,6 +26,8 @@ object UrlConfigManager {
     private var serverType: ServerType = ServerType.DEV
     private val hostMap = mutableMapOf<String, UrlConfigData>()
     private val baseUrlMap = mutableMapOf<String, UrlConfigData>()
+    @Volatile
+    private var environmentResolver: EnvironmentAuthorityResolver? = null
 
     @JvmStatic
     fun setUrlConfigData(list: List<UrlConfigData>, addUrlCompleteCallback: (() -> Unit)? = null) {
@@ -69,8 +74,29 @@ object UrlConfigManager {
 
     internal fun getServerType(context: Context): ServerType {
         val name = PreferencesUtil.getStringPreferences(context, Preference.KEY_SERVER_TYPE, ServerType.DEV.name)
-        return ServerType.valueOf(name!!)
+        return parseServerType(name)
     }
+
+    internal fun parseServerType(name: String?): ServerType =
+        ServerType.entries.firstOrNull { it.name == name } ?: ServerType.DEV
+
+    internal fun installEnvironmentConfig(json: String): Boolean {
+        val next = when (val result = EnvironmentConfigParser.parse(json)) {
+            is EnvironmentConfigParseResult.Success ->
+                EnvironmentAuthorityResolver.from(result.config)
+            is EnvironmentConfigParseResult.Failure -> null
+        }
+        environmentResolver = next
+        return next != null
+    }
+
+    internal fun clearEnvironmentConfig() {
+        environmentResolver = null
+    }
+
+    internal fun resolveAuthority(context: Context, original: String): String =
+        if (!PreferencesUtil.getUrlSwitchingEnable(context)) original
+        else environmentResolver?.resolve(original, getServerType(context)) ?: original
 
     internal class UrlSwitchingInterceptor(private val context: Context) : Interceptor {
         override fun intercept(chain: Interceptor.Chain): Response {
