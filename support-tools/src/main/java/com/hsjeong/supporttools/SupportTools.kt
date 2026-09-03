@@ -20,6 +20,7 @@ import com.chuckerteam.chucker.api.RetentionManager
 import com.hsjeong.supporttools.config.AppSupportConfig
 import com.hsjeong.supporttools.startup.InitializationGate
 import com.hsjeong.supporttools.startup.DebugKeyEvent
+import com.hsjeong.supporttools.startup.DebugKeyEventDecision
 import com.hsjeong.supporttools.startup.DebugKeyEventHandler
 import com.hsjeong.supporttools.ui.main.SupportToolsActivity
 import com.hsjeong.supporttools.utils.DeepLinkData
@@ -214,12 +215,14 @@ object SupportTools {
         private val keyEventHandler = DebugKeyEventHandler(
             isEnabled = { isVolumeShortcutEnabledForTests(isDebug, appSupportConfig) },
             onTriggered = { SupportToolsActivity.start(activity) },
-            forward = { event -> origin.dispatchKeyEvent(KeyEvent(event.action, event.keyCode)) },
         )
 
         override fun dispatchKeyEvent(event: KeyEvent): Boolean {
             return try {
-                keyEventHandler.handle(DebugKeyEvent(event.action, event.keyCode, event.repeatCount))
+                when (keyEventHandler.handle(DebugKeyEvent(event.action, event.keyCode, event.repeatCount))) {
+                    DebugKeyEventDecision.CONSUME -> true
+                    DebugKeyEventDecision.FORWARD -> origin.dispatchKeyEvent(event)
+                }
             } catch (t: Throwable) {
                 Log.e(TAG, "Error in DebugKeyCallback dispatchKeyEvent", t)
                 origin.dispatchKeyEvent(event)

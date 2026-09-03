@@ -3,28 +3,28 @@ package com.hsjeong.supporttools.startup
 import android.view.KeyEvent
 
 internal data class DebugKeyEvent(val action: Int, val keyCode: Int, val repeatCount: Int = 0)
+internal enum class DebugKeyEventDecision { FORWARD, CONSUME }
 internal class DebugKeyEventHandler(
     private val isEnabled: () -> Boolean,
     private val onTriggered: () -> Unit,
-    private val forward: (DebugKeyEvent) -> Boolean,
 ) {
     private var isVolumeUpPressed = false
     private var isVolumeDownPressed = false
     private var isTriggered = false
 
-    fun handle(event: DebugKeyEvent): Boolean {
+    fun handle(event: DebugKeyEvent): DebugKeyEventDecision {
         if (!isEnabled()) {
             isVolumeUpPressed = false
             isVolumeDownPressed = false
             isTriggered = false
-            return forward(event)
+            return DebugKeyEventDecision.FORWARD
         }
 
         val keyCode = event.keyCode
         val action = event.action
 
         if (action == KeyEvent.ACTION_DOWN && event.repeatCount > 0) {
-            return forward(event)
+            return DebugKeyEventDecision.FORWARD
         }
 
         when (action) {
@@ -42,8 +42,8 @@ internal class DebugKeyEventHandler(
         if (isVolumeUpPressed && isVolumeDownPressed && !isTriggered) {
             isTriggered = true
             onTriggered()
-            return true
+            return DebugKeyEventDecision.CONSUME
         }
-        return forward(event)
+        return DebugKeyEventDecision.FORWARD
     }
 }

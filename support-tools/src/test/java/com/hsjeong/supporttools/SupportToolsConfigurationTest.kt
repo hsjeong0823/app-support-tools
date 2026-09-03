@@ -2,9 +2,9 @@ package com.hsjeong.supporttools
 
 import android.view.KeyEvent
 import com.hsjeong.supporttools.startup.DebugKeyEvent
+import com.hsjeong.supporttools.startup.DebugKeyEventDecision
 import com.hsjeong.supporttools.startup.DebugKeyEventHandler
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Test
 
 class SupportToolsConfigurationTest {
@@ -12,27 +12,33 @@ class SupportToolsConfigurationTest {
     fun existingKeyHandler_observesCurrentSettingWhenShortcutIsDisabled() {
         var enabled = true
         var triggers = 0
-        var forwarded = 0
         val handler = DebugKeyEventHandler(
             isEnabled = { enabled },
             onTriggered = { triggers++ },
-            forward = {
-                forwarded++
-                false
-            },
         )
 
-        handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_UP))
-        handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_DOWN))
+        assertEquals(DebugKeyEventDecision.FORWARD, handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_UP)))
+        assertEquals(
+            DebugKeyEventDecision.CONSUME,
+            handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_DOWN)),
+        )
         assertEquals(1, triggers)
+
+        assertEquals(
+            DebugKeyEventDecision.FORWARD,
+            handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_UP, repeatCount = 1)),
+        )
+        assertEquals(
+            DebugKeyEventDecision.FORWARD,
+            handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_A)),
+        )
 
         enabled = false
-        handler.handle(DebugKeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_VOLUME_UP))
-        handler.handle(DebugKeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_VOLUME_DOWN))
-        handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_UP))
-        handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_DOWN))
+        assertEquals(
+            DebugKeyEventDecision.FORWARD,
+            handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_DOWN)),
+        )
 
         assertEquals(1, triggers)
-        assertFalse(forwarded == 0)
     }
 }
