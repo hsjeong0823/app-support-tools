@@ -18,8 +18,6 @@ object DeepLinkManager {
      */
     fun setDeepLinkList(list: List<DeepLinkData>) {
         deepLinkList.clear()
-        // 고정 테스트 페이지 추가
-        deepLinkList.add(DeepLinkData("테스트 페이지", "https://siksik.netlify.app/starbuckstest"))
         deepLinkList.addAll(list)
     }
 
