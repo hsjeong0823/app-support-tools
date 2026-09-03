@@ -11,8 +11,15 @@
 
         <activity
             android:name="com.hsjeong.supporttools.ui.main.SupportToolsActivity"
-            android:launchMode="singleTop"
-            android:exported="false" />
+            android:exported="true"
+            android:icon="@android:drawable/ic_menu_manage"
+            android:label="@string/support_tools_launcher_label"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name="com.hsjeong.supporttools.ui.preferenceviewer.PreferenceViewerActivity"

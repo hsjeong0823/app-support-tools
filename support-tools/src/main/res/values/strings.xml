@@ -16,4 +16,5 @@
     <string name="preference_viewer_button">Preference Viewer</string>
     <string name="preference_viewer_screen_title">Preference Viewer</string>
     <string name="log_viewer_screen_title">Log Viewer</string>
+    <string name="support_tools_launcher_label">Support Tools</string>
 </resources>
