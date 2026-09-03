@@ -2,12 +2,18 @@ package com.hsjeong.supporttools.ui.main
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.ComponentName
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import com.hsjeong.supporttools.R
+import com.hsjeong.supporttools.restart.HOST_LAUNCHER_ACTIVITY_META_DATA
+import com.hsjeong.supporttools.restart.HostLauncher
+import com.hsjeong.supporttools.restart.HostLauncherSelector
 import com.hsjeong.supporttools.ui.base.BaseActivity
 import com.hsjeong.supporttools.ui.deeplinktester.DeepLinkTesterActivity
 import com.hsjeong.supporttools.ui.logviewer.LogViewerActivity
@@ -101,16 +107,13 @@ class SupportToolsActivity : BaseActivity() {
 
         if (needRestart) {
             val restartApp = {
-                val intent = packageManager.getLaunchIntentForPackage(packageName)
-                finishAffinity()
-                startActivity(intent)
-                exitProcess(0)
+                restartHostApp()
             }
 
             AlertDialog.Builder(this)
                 .setTitle(R.string.alert)
                 .setMessage(R.string.alert_restart_message)
-                .setPositiveButton(R.string.confirm) { dialog, which ->
+                .setPositiveButton(R.string.confirm) { _, _ ->
                     restartApp()
                 }
                 .setOnCancelListener {
@@ -125,5 +128,35 @@ class SupportToolsActivity : BaseActivity() {
             }
             finish()
         }
+    }
+
+    private fun restartHostApp() {
+        val query = Intent(Intent.ACTION_MAIN)
+            .addCategory(Intent.CATEGORY_LAUNCHER)
+            .setPackage(packageName)
+        val candidates = packageManager
+            .queryIntentActivities(query, PackageManager.MATCH_DEFAULT_ONLY)
+            .map { HostLauncher(it.activityInfo.packageName, it.activityInfo.name) }
+            .distinct()
+        val configuredClassName = packageManager
+            .getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+            .metaData
+            ?.getString(HOST_LAUNCHER_ACTIVITY_META_DATA)
+        val launcher = HostLauncherSelector.select(
+            candidates = candidates,
+            configuredClassName = configuredClassName,
+            supportToolsComponent = HostLauncher(packageName, SupportToolsActivity::class.java.name),
+        )
+
+        if (launcher == null) {
+            Toast.makeText(this, R.string.host_launcher_not_found_message, Toast.LENGTH_LONG).show()
+            return
+        }
+
+        val component = ComponentName(launcher.packageName, launcher.className)
+        val intent = Intent.makeRestartActivityTask(component)
+        finishAffinity()
+        startActivity(intent)
+        exitProcess(0)
     }
 }
