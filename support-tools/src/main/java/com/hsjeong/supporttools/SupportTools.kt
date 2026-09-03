@@ -19,6 +19,8 @@ import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.chuckerteam.chucker.api.RetentionManager
 import com.hsjeong.supporttools.config.AppSupportConfig
 import com.hsjeong.supporttools.startup.InitializationGate
+import com.hsjeong.supporttools.startup.DebugKeyEvent
+import com.hsjeong.supporttools.startup.DebugKeyEventHandler
 import com.hsjeong.supporttools.ui.main.SupportToolsActivity
 import com.hsjeong.supporttools.utils.DeepLinkData
 import com.hsjeong.supporttools.utils.DeepLinkManager
@@ -209,49 +211,19 @@ object SupportTools {
     }
 
     private class DebugKeyCallback(private val origin: Window.Callback, private val activity: Activity) : Window.Callback by origin {
-        private var isVolumeUpPressed = false
-        private var isVolumeDownPressed = false
-        private var isTriggered = false
+        private val keyEventHandler = DebugKeyEventHandler(
+            isEnabled = { isVolumeShortcutEnabledForTests(isDebug, appSupportConfig) },
+            onTriggered = { SupportToolsActivity.start(activity) },
+            forward = { event -> origin.dispatchKeyEvent(KeyEvent(event.action, event.keyCode)) },
+        )
 
         override fun dispatchKeyEvent(event: KeyEvent): Boolean {
             return try {
-                handleKeyEventInternal(event)
+                keyEventHandler.handle(DebugKeyEvent(event.action, event.keyCode, event.repeatCount))
             } catch (t: Throwable) {
                 Log.e(TAG, "Error in DebugKeyCallback dispatchKeyEvent", t)
                 origin.dispatchKeyEvent(event)
             }
-        }
-
-        private fun handleKeyEventInternal(event: KeyEvent): Boolean {
-            val keyCode = event.keyCode
-            val action = event.action
-
-            if (action == KeyEvent.ACTION_DOWN && event.repeatCount > 0) {
-                return origin.dispatchKeyEvent(event)
-            }
-
-            when (action) {
-                KeyEvent.ACTION_DOWN -> {
-                    if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) isVolumeUpPressed = true
-                    if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) isVolumeDownPressed = true
-                }
-
-                KeyEvent.ACTION_UP -> {
-                    if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) isVolumeUpPressed = false
-                    if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) isVolumeDownPressed = false
-
-                    if (!isVolumeUpPressed || !isVolumeDownPressed) {
-                        isTriggered = false
-                    }
-                }
-            }
-
-            if (isVolumeUpPressed && isVolumeDownPressed && !isTriggered) {
-                isTriggered = true
-                SupportToolsActivity.start(activity)
-                return true
-            }
-            return origin.dispatchKeyEvent(event)
         }
 
         override fun onProvideKeyboardShortcuts(

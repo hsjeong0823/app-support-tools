@@ -1,18 +1,38 @@
 package com.hsjeong.supporttools
 
-import com.hsjeong.supporttools.config.AppSupportConfig
+import android.view.KeyEvent
+import com.hsjeong.supporttools.startup.DebugKeyEvent
+import com.hsjeong.supporttools.startup.DebugKeyEventHandler
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class SupportToolsConfigurationTest {
     @Test
-    fun volumeShortcut_isEvaluatedFromCurrentDebugConfiguration() {
-        val enabled = AppSupportConfig.Builder().enableVolumeShortcut(true).build()
-        val disabled = AppSupportConfig.Builder().enableVolumeShortcut(false).build()
+    fun existingKeyHandler_observesCurrentSettingWhenShortcutIsDisabled() {
+        var enabled = true
+        var triggers = 0
+        var forwarded = 0
+        val handler = DebugKeyEventHandler(
+            isEnabled = { enabled },
+            onTriggered = { triggers++ },
+            forward = {
+                forwarded++
+                false
+            },
+        )
 
-        assertTrue(SupportTools.isVolumeShortcutEnabledForTests(true, enabled))
-        assertFalse(SupportTools.isVolumeShortcutEnabledForTests(true, disabled))
-        assertFalse(SupportTools.isVolumeShortcutEnabledForTests(false, enabled))
+        handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_UP))
+        handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_DOWN))
+        assertEquals(1, triggers)
+
+        enabled = false
+        handler.handle(DebugKeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_VOLUME_UP))
+        handler.handle(DebugKeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_VOLUME_DOWN))
+        handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_UP))
+        handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_DOWN))
+
+        assertEquals(1, triggers)
+        assertFalse(forwarded == 0)
     }
 }
