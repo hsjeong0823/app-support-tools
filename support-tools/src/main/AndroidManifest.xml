@@ -3,6 +3,12 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application>
+        <provider
+            android:name="com.hsjeong.supporttools.startup.SupportToolsInitProvider"
+            android:authorities="${applicationId}.supporttools-init"
+            android:exported="false"
+            android:initOrder="100" />
+
         <activity
             android:name="com.hsjeong.supporttools.ui.main.SupportToolsActivity"
             android:launchMode="singleTop"
