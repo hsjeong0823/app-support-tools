@@ -41,11 +41,19 @@ import okhttp3.OkHttpClient
 object SupportTools {
     private const val TAG = "SupportTools"
     private var isDebug = true
-    private val initializationGate = InitializationGate()
+    private val processInitializationGate = InitializationGate()
+    private val activityInitializationGate = InitializationGate()
+    private val screenOverlayInitializationGate = InitializationGate()
     var appSupportConfig: AppSupportConfig? = null
         private set
 
-    internal fun isInitializedForTests(): Boolean = initializationGate.isInitialized
+    internal fun isInitializedForTests(): Boolean =
+        processInitializationGate.isInitialized &&
+            activityInitializationGate.isInitialized &&
+            screenOverlayInitializationGate.isInitialized
+
+    internal fun isVolumeShortcutEnabledForTests(debugEnabled: Boolean, config: AppSupportConfig?): Boolean =
+        debugEnabled && config?.enableVolumeShortcut == true
 
     private inline fun runSafe(action: () -> Unit) {
         try {
@@ -69,7 +77,7 @@ object SupportTools {
                     PreferencesUtil.setUrlSwitchingEnable(application, config.enableUrlSwitching)
                 }
 
-                initializationGate.runOnce {
+                processInitializationGate.runOnce {
                     ProcessLifecycleOwner.get().lifecycle.addObserver(object :
                     DefaultLifecycleObserver {
                     override fun onStart(owner: LifecycleOwner) {
@@ -87,13 +95,15 @@ object SupportTools {
                         }
                     }
                     })
+                }
 
-                application.registerActivityLifecycleCallbacks(object :
+                activityInitializationGate.runOnce {
+                    application.registerActivityLifecycleCallbacks(object :
                     Application.ActivityLifecycleCallbacks {
                     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
                     override fun onActivityResumed(activity: Activity) {
                         runSafe {
-                            if (appSupportConfig?.enableVolumeShortcut == true) {
+                            if (isVolumeShortcutEnabledForTests(isDebug, appSupportConfig)) {
                                 val window = activity.window
                                 if (window.callback !is DebugKeyCallback) {
                                     val originCallback = window.callback
@@ -108,8 +118,10 @@ object SupportTools {
                     override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
                     override fun onActivityDestroyed(activity: Activity) {}
                     })
+                }
 
                 // 화면 액티비티명 노출 설정
+                screenOverlayInitializationGate.runOnce {
                     ScreenNameOverlayManager.initialize(application)
                 }
             } else {

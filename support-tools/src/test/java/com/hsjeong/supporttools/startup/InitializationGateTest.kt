@@ -30,4 +30,20 @@ class InitializationGateTest {
         assertTrue(gate.runOnce { })
         assertTrue(gate.isInitialized)
     }
+
+    @Test
+    fun independentGates_doNotRepeatCompletedSideEffectsAfterLaterFailure() {
+        val completedSideEffect = InitializationGate()
+        val retryableSideEffect = InitializationGate()
+        var completedCalls = 0
+        var retryableCalls = 0
+
+        assertTrue(completedSideEffect.runOnce { completedCalls++ })
+        runCatching { retryableSideEffect.runOnce { retryableCalls++; error("later stage") } }
+
+        assertFalse(completedSideEffect.runOnce { completedCalls++ })
+        assertTrue(retryableSideEffect.runOnce { retryableCalls++ })
+        assertEquals(1, completedCalls)
+        assertEquals(2, retryableCalls)
+    }
 }
