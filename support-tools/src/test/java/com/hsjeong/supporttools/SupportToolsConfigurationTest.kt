@@ -9,29 +9,13 @@ import org.junit.Test
 
 class SupportToolsConfigurationTest {
     @Test
-    fun existingKeyHandler_observesCurrentSettingWhenShortcutIsDisabled() {
+    fun keyHandler_forwardsAndResetsStateWhenShortcutIsDisabled() {
         var enabled = true
-        var triggers = 0
         val handler = DebugKeyEventHandler(
             isEnabled = { enabled },
-            onTriggered = { triggers++ },
         )
 
         assertEquals(DebugKeyEventDecision.FORWARD, handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_UP)))
-        assertEquals(
-            DebugKeyEventDecision.CONSUME,
-            handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_DOWN)),
-        )
-        assertEquals(1, triggers)
-
-        assertEquals(
-            DebugKeyEventDecision.FORWARD,
-            handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_UP, repeatCount = 1)),
-        )
-        assertEquals(
-            DebugKeyEventDecision.FORWARD,
-            handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_A)),
-        )
 
         enabled = false
         assertEquals(
@@ -39,6 +23,48 @@ class SupportToolsConfigurationTest {
             handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_DOWN)),
         )
 
-        assertEquals(1, triggers)
+        enabled = true
+        assertEquals(
+            DebugKeyEventDecision.FORWARD,
+            handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_DOWN)),
+        )
+    }
+
+    @Test
+    fun keyHandler_forwardsRepeatedKeyDownEvents() {
+        val handler = DebugKeyEventHandler(isEnabled = { true })
+
+        assertEquals(
+            DebugKeyEventDecision.FORWARD,
+            handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_UP, repeatCount = 1)),
+        )
+    }
+
+    @Test
+    fun keyHandler_forwardsOrdinaryKeyEvents() {
+        val handler = DebugKeyEventHandler(isEnabled = { true })
+
+        assertEquals(
+            DebugKeyEventDecision.FORWARD,
+            handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_A)),
+        )
+    }
+
+    @Test
+    fun keyHandler_consumesCompletedVolumeChordOnlyOnce() {
+        val handler = DebugKeyEventHandler(isEnabled = { true })
+
+        assertEquals(
+            DebugKeyEventDecision.FORWARD,
+            handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_UP)),
+        )
+        assertEquals(
+            DebugKeyEventDecision.CONSUME,
+            handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_DOWN)),
+        )
+        assertEquals(
+            DebugKeyEventDecision.FORWARD,
+            handler.handle(DebugKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_DOWN)),
+        )
     }
 }

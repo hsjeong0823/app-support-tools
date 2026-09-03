@@ -214,13 +214,15 @@ object SupportTools {
     private class DebugKeyCallback(private val origin: Window.Callback, private val activity: Activity) : Window.Callback by origin {
         private val keyEventHandler = DebugKeyEventHandler(
             isEnabled = { isVolumeShortcutEnabledForTests(isDebug, appSupportConfig) },
-            onTriggered = { SupportToolsActivity.start(activity) },
         )
 
         override fun dispatchKeyEvent(event: KeyEvent): Boolean {
             return try {
                 when (keyEventHandler.handle(DebugKeyEvent(event.action, event.keyCode, event.repeatCount))) {
-                    DebugKeyEventDecision.CONSUME -> true
+                    DebugKeyEventDecision.CONSUME -> {
+                        SupportToolsActivity.start(activity)
+                        true
+                    }
                     DebugKeyEventDecision.FORWARD -> origin.dispatchKeyEvent(event)
                 }
             } catch (t: Throwable) {

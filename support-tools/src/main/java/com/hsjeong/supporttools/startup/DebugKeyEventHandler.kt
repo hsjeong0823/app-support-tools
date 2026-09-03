@@ -6,7 +6,6 @@ internal data class DebugKeyEvent(val action: Int, val keyCode: Int, val repeatC
 internal enum class DebugKeyEventDecision { FORWARD, CONSUME }
 internal class DebugKeyEventHandler(
     private val isEnabled: () -> Boolean,
-    private val onTriggered: () -> Unit,
 ) {
     private var isVolumeUpPressed = false
     private var isVolumeDownPressed = false
@@ -41,7 +40,6 @@ internal class DebugKeyEventHandler(
 
         if (isVolumeUpPressed && isVolumeDownPressed && !isTriggered) {
             isTriggered = true
-            onTriggered()
             return DebugKeyEventDecision.CONSUME
         }
         return DebugKeyEventDecision.FORWARD
