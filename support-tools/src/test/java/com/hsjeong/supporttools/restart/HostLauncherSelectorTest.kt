@@ -10,6 +10,11 @@ class HostLauncherSelectorTest {
     private val alternate = component("com.example.host.AlternateActivity")
 
     @Test
+    fun `launcher query does not require default category`() {
+        assertEquals(0, HOST_LAUNCHER_QUERY_FLAGS)
+    }
+
+    @Test
     fun `selects the only host launcher`() {
         assertEquals(
             main,

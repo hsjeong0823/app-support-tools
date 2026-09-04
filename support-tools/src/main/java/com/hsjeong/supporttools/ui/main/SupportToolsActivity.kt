@@ -12,6 +12,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import com.hsjeong.supporttools.R
 import com.hsjeong.supporttools.restart.HOST_LAUNCHER_ACTIVITY_META_DATA
+import com.hsjeong.supporttools.restart.HOST_LAUNCHER_QUERY_FLAGS
 import com.hsjeong.supporttools.restart.HostLauncher
 import com.hsjeong.supporttools.restart.HostLauncherSelector
 import com.hsjeong.supporttools.ui.base.BaseActivity
@@ -135,7 +136,7 @@ class SupportToolsActivity : BaseActivity() {
             .addCategory(Intent.CATEGORY_LAUNCHER)
             .setPackage(packageName)
         val candidates = packageManager
-            .queryIntentActivities(query, PackageManager.MATCH_DEFAULT_ONLY)
+            .queryIntentActivities(query, HOST_LAUNCHER_QUERY_FLAGS)
             .map { HostLauncher(it.activityInfo.packageName, it.activityInfo.name) }
             .distinct()
         val configuredClassName = packageManager

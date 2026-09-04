@@ -2,6 +2,7 @@ package com.hsjeong.supporttools.restart
 
 internal const val HOST_LAUNCHER_ACTIVITY_META_DATA =
     "com.hsjeong.supporttools.HOST_LAUNCHER_ACTIVITY"
+internal const val HOST_LAUNCHER_QUERY_FLAGS = 0
 
 internal data class HostLauncher(
     val packageName: String,
