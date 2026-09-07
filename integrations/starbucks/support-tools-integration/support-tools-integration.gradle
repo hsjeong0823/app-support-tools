@@ -104,8 +104,6 @@ plugins.withId('com.android.application') {
                 "generate${variant.name.capitalize()}SupportToolsEnvironment",
                 GenerateSupportToolsEnvironmentTask) {
             propertiesFile.set(rootProject.layout.projectDirectory.file('uri.properties'))
-            outputDirectory.set(layout.buildDirectory.dir(
-                    "generated/supportTools/${variant.name}/res"))
             configBuilder = supportToolsBuildEnvironmentConfig
         }
 

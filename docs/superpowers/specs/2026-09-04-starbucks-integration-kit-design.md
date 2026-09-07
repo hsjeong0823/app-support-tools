@@ -48,7 +48,7 @@ support-tools-integration/
 - registers the debug-only manifest;
 - reads the host-owned `uri.properties` only while generating a debug variant;
 - maps logical service names and runtime environments to property key names;
-- generates `support_tools_environments.json` below the application module's `build/generated/supportTools/<variant>/res/raw/` directory;
+- generates `support_tools_environments.json` below AGP's application-module path `build/generated/res/generate<Variant>SupportToolsEnvironment/raw/`;
 - registers that generated resource directory only for debug variants;
 - wires generation into the relevant Android resource task;
 - does not add anything to release variants.

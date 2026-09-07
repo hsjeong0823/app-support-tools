@@ -30,7 +30,7 @@
 ## 설정과 보안
 
 - 실제 환경 값은 기존 Starbucks 루트의 `uri.properties`에서 debug 빌드 시점에만 읽는다.
-- 생성된 `support_tools_environments.json`은 `app/build/generated/supportTools/` 아래에만 존재한다.
+- 생성된 `support_tools_environments.json`은 `app/build/generated/res/generate<Variant>SupportToolsEnvironment/` 아래에만 존재한다.
 - 생성된 JSON이나 `uri.properties`의 값을 이 폴더로 복사하지 않는다.
 - 누락되거나 빈 필수 프로퍼티는 값 자체를 출력하지 않고 키 이름만 포함한 오류로 debug 빌드를 중단한다.
 

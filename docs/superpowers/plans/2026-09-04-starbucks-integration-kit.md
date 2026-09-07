@@ -182,34 +182,21 @@ android.sourceSets.main.java.srcDir(new File(kitDir, 'src/main/java'))
 android.sourceSets.debug.java.srcDir(new File(kitDir, 'src/debug/java'))
 android.sourceSets.debug.manifest.srcFile(new File(kitDir, 'src/debug/AndroidManifest.xml'))
 
-android.applicationVariants.all { variant ->
-    if (variant.buildType.name != 'debug') return
-    def output = layout.buildDirectory.file(
-        "generated/supportTools/${variant.name}/res/raw/support_tools_environments.json")
-    android.sourceSets.maybeCreate(variant.name).res.srcDir(
-        "$buildDir/generated/supportTools/${variant.name}/res")
-    def task = tasks.register("generate${variant.name.capitalize()}SupportToolsEnvironment") {
-        def input = rootProject.file('uri.properties')
-        inputs.file(input)
-        outputs.file(output)
-        doLast {
-            if (!input.isFile()) {
-                throw new GradleException("Missing uri.properties: ${input}")
-            }
-            def properties = new Properties()
-            input.withInputStream { properties.load(it) }
-            def config = supportToolsBuildEnvironmentConfig(properties)
-            def destination = output.get().asFile
-            destination.parentFile.mkdirs()
-            destination.setText(
-                groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(config)),
-                'UTF-8')
-        }
+androidComponents.onVariants(
+        androidComponents.selector().withBuildType('debug')) { variant ->
+    def task = tasks.register(
+            "generate${variant.name.capitalize()}SupportToolsEnvironment",
+            GenerateSupportToolsEnvironmentTask) {
+        propertiesFile.set(rootProject.layout.projectDirectory.file('uri.properties'))
+        configBuilder = supportToolsBuildEnvironmentConfig
     }
-    variant.preBuildProvider.configure { dependsOn(task) }
-    variant.mergeResourcesProvider.configure { dependsOn(task) }
+    variant.sources.res.addGeneratedSourceDirectory(task) {
+        it.outputDirectory
+    }
 }
 ```
+
+`GenerateSupportToolsEnvironmentTask` exposes an optional `@InputFile RegularFileProperty propertiesFile`, an `@OutputDirectory DirectoryProperty outputDirectory`, and an internal configuration-builder closure. Its task action validates the input, builds the configuration, and writes `raw/support_tools_environments.json`. AGP assigns the output directory under `app/build/generated/res/generate<Variant>SupportToolsEnvironment/` and wires generation before resource merging.
 
 Assert during the focused Starbucks build that `buildscript.sourceFile` resolves to the copied `support-tools-integration.gradle`; do not hardcode a workstation path.
 
@@ -411,7 +398,7 @@ Run from Starbucks:
 sh ./gradlew :app:assembleDevDebug
 ```
 
-Expected: `BUILD SUCCESSFUL`; `app/build/generated/supportTools/devDebug/res/raw/support_tools_environments.json` exists; the generated JSON parses with schema version 1 and 15 services.
+Expected: `BUILD SUCCESSFUL`; `app/build/generated/res/generateDevDebugSupportToolsEnvironment/raw/support_tools_environments.json` exists; the generated JSON parses with schema version 1 and 15 services.
 
 - [ ] **Step 6: Confirm the local-only diff and zero staged changes**
 
