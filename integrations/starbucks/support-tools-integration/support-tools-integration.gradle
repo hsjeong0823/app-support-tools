@@ -1,4 +1,45 @@
 import groovy.json.JsonOutput
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.TaskAction
+
+abstract class GenerateSupportToolsEnvironmentTask extends DefaultTask {
+    @Optional
+    @InputFile
+    @PathSensitive(PathSensitivity.NONE)
+    abstract RegularFileProperty getPropertiesFile()
+
+    @OutputDirectory
+    abstract DirectoryProperty getOutputDirectory()
+
+    @Internal
+    Closure configBuilder
+
+    @TaskAction
+    void generate() {
+        def input = propertiesFile.get().asFile
+        if (!input.isFile()) {
+            throw new GradleException("Missing uri.properties: ${input}")
+        }
+
+        def properties = new Properties()
+        input.withInputStream { properties.load(it) }
+        def config = configBuilder.call(properties)
+        def output = outputDirectory.file(
+                'raw/support_tools_environments.json').get().asFile
+        output.parentFile.mkdirs()
+        output.setText(
+                JsonOutput.prettyPrint(JsonOutput.toJson(config)),
+                'UTF-8')
+    }
+}
 
 def supportToolsServices = [
         [id: 'msr', dev: 'msrDevUri', stg: 'msrStgUri', real: 'msrRealUri', aliases: ['msrTestUri', 'msrDrUri']],
@@ -57,43 +98,19 @@ plugins.withId('com.android.application') {
     android.sourceSets.debug.java.srcDir(new File(kitDir, 'src/debug/java'))
     android.sourceSets.debug.manifest.srcFile(new File(kitDir, 'src/debug/AndroidManifest.xml'))
 
-    android.applicationVariants.all { variant ->
-        if (variant.buildType.name != 'debug') {
-            return
-        }
-
-        def generatedConfig = layout.buildDirectory.file(
-                "generated/supportTools/${variant.name}/res/raw/support_tools_environments.json")
-        android.sourceSets.maybeCreate(variant.name).res.srcDir(
-                "$buildDir/generated/supportTools/${variant.name}/res")
-
+    androidComponents.onVariants(
+            androidComponents.selector().withBuildType('debug')) { variant ->
         def generateTask = tasks.register(
-                "generate${variant.name.capitalize()}SupportToolsEnvironment") {
-            def propertiesFile = rootProject.file('uri.properties')
-            inputs.file(propertiesFile).optional()
-            outputs.file(generatedConfig)
-
-            doLast {
-                if (!propertiesFile.isFile()) {
-                    throw new GradleException("Missing uri.properties: ${propertiesFile}")
-                }
-
-                def properties = new Properties()
-                propertiesFile.withInputStream { properties.load(it) }
-                def config = supportToolsBuildEnvironmentConfig(properties)
-                def outputFile = generatedConfig.get().asFile
-                outputFile.parentFile.mkdirs()
-                outputFile.setText(
-                        JsonOutput.prettyPrint(JsonOutput.toJson(config)),
-                        'UTF-8')
-            }
+                "generate${variant.name.capitalize()}SupportToolsEnvironment",
+                GenerateSupportToolsEnvironmentTask) {
+            propertiesFile.set(rootProject.layout.projectDirectory.file('uri.properties'))
+            outputDirectory.set(layout.buildDirectory.dir(
+                    "generated/supportTools/${variant.name}/res"))
+            configBuilder = supportToolsBuildEnvironmentConfig
         }
 
-        variant.preBuildProvider.configure {
-            dependsOn(generateTask)
-        }
-        variant.mergeResourcesProvider.configure {
-            dependsOn(generateTask)
+        variant.sources.res.addGeneratedSourceDirectory(generateTask) {
+            it.outputDirectory
         }
     }
 }
