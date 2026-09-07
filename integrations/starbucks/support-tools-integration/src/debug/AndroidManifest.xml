@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <provider
+            android:name="com.starbucks.co2.debug.StarbucksSupportToolsEnvironmentProvider"
+            android:authorities="${applicationId}.supporttools-environment"
+            android:exported="false"
+            android:initOrder="1000" />
+    </application>
+</manifest>

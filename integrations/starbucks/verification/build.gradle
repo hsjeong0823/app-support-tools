@@ -49,5 +49,33 @@ tasks.register('verifyIntegrationScript') {
         def parsed = new JsonSlurper().parseText(json)
         assert parsed.schemaVersion == 1
         assert parsed.services.size() == 15
+
+        def kitDir = file('../support-tools-integration')
+        def resolver = new File(kitDir,
+                'src/main/java/com/starbucks/co2/constants/NewUriAuthorityResolver.java')
+        def provider = new File(kitDir,
+                'src/debug/java/com/starbucks/co2/debug/StarbucksSupportToolsEnvironmentProvider.java')
+        def manifest = new File(kitDir, 'src/debug/AndroidManifest.xml')
+        def readme = new File(kitDir, 'README.md')
+        [resolver, provider, manifest, readme].each { expectedFile ->
+            assert expectedFile.isFile(): "Missing integration file: ${expectedFile.name}"
+        }
+
+        assert resolver.text.contains('package com.starbucks.co2.constants;')
+        assert provider.text.contains('package com.starbucks.co2.debug;')
+        assert manifest.text.contains('android:exported="false"')
+        assert manifest.text.contains('${applicationId}.supporttools-environment')
+
+        def allowedUrl = 'http://schemas.android.com/apk/res/android'
+        kitDir.eachFileRecurse { file ->
+            if (file.isFile()) {
+                file.eachLine { line ->
+                    def sanitized = line.replace(allowedUrl, '')
+                    assert !(sanitized =~ /https?:\/\//)
+                    assert !(sanitized =~
+                            /(?i)(password|access[_-]?token|client[_-]?secret)\s*[=:]/)
+                }
+            }
+        }
     }
 }
