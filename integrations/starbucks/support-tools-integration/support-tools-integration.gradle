@@ -1,0 +1,99 @@
+import groovy.json.JsonOutput
+
+def supportToolsServices = [
+        [id: 'msr', dev: 'msrDevUri', stg: 'msrStgUri', real: 'msrRealUri', aliases: ['msrTestUri', 'msrDrUri']],
+        [id: 'web', dev: 'webDevUri', stg: 'webStgUri', real: 'webRealUri', aliases: ['webTestUri', 'webDrUri']],
+        [id: 'auth', dev: 'authDevUri', stg: 'authStgUri', real: 'authRealUri', aliases: ['authTestUri', 'authDrUri']],
+        [id: 'auth-manage', dev: 'authManageDevUri', stg: 'authManageStgUri', real: 'authManageRealUri', aliases: ['authManageTestUri', 'authManageDrUri']],
+        [id: 'voc', dev: 'vocDevUri', stg: 'vocStgUri', real: 'vocRealUri', aliases: []],
+        [id: 'log', dev: 'logDevUri', stg: 'logDevUri', real: 'logRealUri', aliases: []],
+        [id: 'on-demand', dev: 'onDemandDevUri', stg: 'onDemandStgUri', real: 'onDemandRealUri', aliases: ['onDemandTestUri', 'onDemandDrUri']],
+        [id: 'gift-deliver', dev: 'giftDeliverDevUri', stg: 'giftDeliverStgUri', real: 'giftDeliverRealUri', aliases: ['giftDeliverTestUri', 'giftDeliverDrUri']],
+        [id: 'gift-api', dev: 'giftDeliverApiDevUri', stg: 'giftDeliverApiStgUri', real: 'giftDeliverApiRealUri', aliases: []],
+        [id: 'online-store', dev: 'onlineStoreDevUri', stg: 'onlineStoreStgUri', real: 'onlineStoreRealUri', aliases: []],
+        [id: 'biz-mall', dev: 'bizMallDevUri', stg: 'bizMallStgUri', real: 'bizMallRealUri', aliases: []],
+        [id: 'payment', dev: 'paymentDevUri', stg: 'paymentStgUri', real: 'paymentRealUri', aliases: ['paymentTestUri', 'paymentDrUri']],
+        [id: 'web-external', dev: 'webExternalDevUri', stg: 'webExternalStgUri', real: 'webExternalRealUri', aliases: ['webExternalTestUri', 'webExternalDrUri']],
+        [id: 'frequency', dev: 'webFrequencyDevUri', stg: 'webFrequencyStgUri', real: 'webFrequencyRealUri', aliases: []],
+        [id: 'frequency-defect', dev: 'webFrequencyDefectReportDevUri', stg: 'webFrequencyDefectReportStgUri', real: 'webFrequencyDefectReportRealUri', aliases: []],
+]
+
+ext.supportToolsBuildEnvironmentConfig = { Properties properties ->
+    def ids = supportToolsServices*.id
+    if (ids.size() != ids.toSet().size()) {
+        throw new GradleException('Duplicate support-tools service id')
+    }
+
+    def requiredKeys = supportToolsServices.collectMany { service ->
+        [service.dev, service.stg, service.real] + service.aliases
+    }.toSet()
+    requiredKeys.each { key ->
+        def value = properties.getProperty(key)
+        if (value == null || value.trim().isEmpty()) {
+            throw new GradleException("Missing or blank uri.properties key: ${key}")
+        }
+    }
+
+    [
+            schemaVersion: 1,
+            services: supportToolsServices.collect { service ->
+                def sourceKeys = ([service.dev, service.stg, service.real] + service.aliases).unique()
+                [
+                        id: service.id,
+                        sourceAuthorities: sourceKeys.collect { properties.getProperty(it) }.unique(),
+                        targets: [
+                                DEV: properties.getProperty(service.dev),
+                                STG: properties.getProperty(service.stg),
+                                REAL: properties.getProperty(service.real),
+                        ],
+                ]
+            },
+    ]
+}
+
+plugins.withId('com.android.application') {
+    def kitDir = buildscript.sourceFile.parentFile
+    android.sourceSets.main.java.srcDir(new File(kitDir, 'src/main/java'))
+    android.sourceSets.debug.java.srcDir(new File(kitDir, 'src/debug/java'))
+    android.sourceSets.debug.manifest.srcFile(new File(kitDir, 'src/debug/AndroidManifest.xml'))
+
+    android.applicationVariants.all { variant ->
+        if (variant.buildType.name != 'debug') {
+            return
+        }
+
+        def generatedConfig = layout.buildDirectory.file(
+                "generated/supportTools/${variant.name}/res/raw/support_tools_environments.json")
+        android.sourceSets.maybeCreate(variant.name).res.srcDir(
+                "$buildDir/generated/supportTools/${variant.name}/res")
+
+        def generateTask = tasks.register(
+                "generate${variant.name.capitalize()}SupportToolsEnvironment") {
+            def propertiesFile = rootProject.file('uri.properties')
+            inputs.file(propertiesFile).optional()
+            outputs.file(generatedConfig)
+
+            doLast {
+                if (!propertiesFile.isFile()) {
+                    throw new GradleException("Missing uri.properties: ${propertiesFile}")
+                }
+
+                def properties = new Properties()
+                propertiesFile.withInputStream { properties.load(it) }
+                def config = supportToolsBuildEnvironmentConfig(properties)
+                def outputFile = generatedConfig.get().asFile
+                outputFile.parentFile.mkdirs()
+                outputFile.setText(
+                        JsonOutput.prettyPrint(JsonOutput.toJson(config)),
+                        'UTF-8')
+            }
+        }
+
+        variant.preBuildProvider.configure {
+            dependsOn(generateTask)
+        }
+        variant.mergeResourcesProvider.configure {
+            dependsOn(generateTask)
+        }
+    }
+}

@@ -1,0 +1,53 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
+apply from: '../support-tools-integration/support-tools-integration.gradle'
+
+def fixtureProperties = { String name ->
+    def properties = new Properties()
+    file("fixtures/${name}").withInputStream { properties.load(it) }
+    properties
+}
+
+def captureFailure = { Class<? extends Throwable> expectedType, Closure action ->
+    try {
+        action.call()
+        throw new AssertionError("Expected ${expectedType.simpleName}")
+    } catch (Throwable failure) {
+        assert expectedType.isInstance(failure)
+        failure
+    }
+}
+
+tasks.register('verifyIntegrationScript') {
+    doLast {
+        def valid = supportToolsBuildEnvironmentConfig(
+                fixtureProperties('valid-uri.properties'))
+        assert valid.schemaVersion == 1
+        assert valid.services*.id.size() == 15
+        assert valid.services*.id.toSet().size() == 15
+        assert valid.services.find { it.id == 'msr' }.targets.keySet() ==
+                ['DEV', 'STG', 'REAL'] as Set
+        assert valid.services.find { it.id == 'log' }.targets.STG ==
+                'log-dev.example.invalid'
+
+        def missing = captureFailure(GradleException) {
+            supportToolsBuildEnvironmentConfig(
+                    fixtureProperties('missing-uri.properties'))
+        }
+        assert missing.message ==
+                'Missing or blank uri.properties key: msrRealUri'
+
+        def blank = captureFailure(GradleException) {
+            supportToolsBuildEnvironmentConfig(
+                    fixtureProperties('blank-uri.properties'))
+        }
+        assert blank.message ==
+                'Missing or blank uri.properties key: msrRealUri'
+
+        def json = JsonOutput.toJson(valid)
+        def parsed = new JsonSlurper().parseText(json)
+        assert parsed.schemaVersion == 1
+        assert parsed.services.size() == 15
+    }
+}
