@@ -14,7 +14,8 @@
             android:exported="true"
             android:icon="@android:drawable/ic_menu_manage"
             android:label="@string/support_tools_launcher_label"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop"
+            android:taskAffinity="${applicationId}.supporttools">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

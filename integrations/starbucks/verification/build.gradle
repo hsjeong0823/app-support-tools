@@ -53,16 +53,21 @@ tasks.register('verifyIntegrationScript') {
         def kitDir = file('../support-tools-integration')
         def resolver = new File(kitDir,
                 'src/main/java/com/starbucks/co2/constants/NewUriAuthorityResolver.java')
+        def networkBridge = new File(kitDir,
+                'src/main/java/com/starbucks/co2/network/core/SupportToolsNetworkBridge.java')
         def provider = new File(kitDir,
                 'src/debug/java/com/starbucks/co2/debug/StarbucksSupportToolsEnvironmentProvider.java')
         def manifest = new File(kitDir, 'src/debug/AndroidManifest.xml')
         def readme = new File(kitDir, 'README.md')
-        [resolver, provider, manifest, readme].each { expectedFile ->
+        [resolver, networkBridge, provider, manifest, readme].each { expectedFile ->
             assert expectedFile.isFile(): "Missing integration file: ${expectedFile.name}"
         }
 
         assert resolver.text.contains('package com.starbucks.co2.constants;')
+        assert networkBridge.text.contains('package com.starbucks.co2.network.core;')
+        assert networkBridge.text.contains('public static void apply(')
         assert provider.text.contains('package com.starbucks.co2.debug;')
+        assert provider.text.contains('SupportToolsNetworkBridge.install(')
         assert manifest.text.contains('android:exported="false"')
         assert manifest.text.contains('${applicationId}.supporttools-environment')
 

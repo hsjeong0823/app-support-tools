@@ -9,16 +9,23 @@ import android.net.Uri;
 import com.hsjeong.supporttools.SupportTools;
 import com.starbucks.co.R;
 import com.starbucks.co2.constants.NewUriAuthorityResolver;
+import com.starbucks.co2.network.core.SupportToolsNetworkBridge;
 
 public final class StarbucksSupportToolsEnvironmentProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         Context context = getContext();
-        if (context != null && SupportTools.loadEnvironmentConfig(
-                context, R.raw.support_tools_environments)) {
+        if (context != null) {
             Context appContext = context.getApplicationContext();
-            NewUriAuthorityResolver.install(
-                    original -> SupportTools.resolveAuthority(appContext, original));
+            SupportToolsNetworkBridge.install(
+                    (networkContext, builder) ->
+                            SupportTools.addNetworkInterceptor(networkContext, builder));
+
+            if (SupportTools.loadEnvironmentConfig(
+                    context, R.raw.support_tools_environments)) {
+                NewUriAuthorityResolver.install(
+                        original -> SupportTools.resolveAuthority(appContext, original));
+            }
         }
         return true;
     }

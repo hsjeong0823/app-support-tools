@@ -67,6 +67,16 @@ uri.append(NewUriAuthorityResolver.resolve(authority));
 
 같은 Java 패키지에 Resolver가 연결되므로 별도 import나 Application 초기화 코드는 필요하지 않다.
 
+### 6. 네트워크 로그 연결
+
+`BaseApiClient.createHttpClient()`에서 `OkHttpClient.Builder` 구성을 마친 뒤 `build()` 전에 추가한다.
+
+```java
+SupportToolsNetworkBridge.apply(context, okHttpBuilder);
+```
+
+같은 Java 패키지에 bridge가 연결되므로 별도 import는 필요하지 않다. 비활성화 상태와 release에서는 no-op이며, 활성화된 debug에서 네트워크 로그 옵션이 켜져 있을 때만 Chucker interceptor를 추가한다.
+
 ## 설정과 보안
 
 - 기존 Starbucks 루트의 `uri.properties`를 debug 빌드 시점에만 읽는다.
