@@ -9,6 +9,7 @@ sealed class SupportToolsUiEvent {
     data object MovePreferenceViewer : SupportToolsUiEvent()
     data object MoveDeepLinkTester : SupportToolsUiEvent()
     data object MoveLogViewer : SupportToolsUiEvent()
+    data object MoveEnvironmentConfigViewer : SupportToolsUiEvent()
 }
 
 // ViewModel로 전달되는 Intent 정의

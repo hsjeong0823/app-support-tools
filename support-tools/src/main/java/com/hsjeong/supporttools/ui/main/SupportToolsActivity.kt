@@ -17,6 +17,7 @@ import com.hsjeong.supporttools.restart.HostLauncher
 import com.hsjeong.supporttools.restart.HostLauncherSelector
 import com.hsjeong.supporttools.ui.base.BaseActivity
 import com.hsjeong.supporttools.ui.deeplinktester.DeepLinkTesterActivity
+import com.hsjeong.supporttools.ui.environmentconfig.EnvironmentConfigViewerActivity
 import com.hsjeong.supporttools.ui.logviewer.LogViewerActivity
 import com.hsjeong.supporttools.ui.preferenceviewer.PreferenceViewerActivity
 import com.hsjeong.supporttools.utils.LogcatOverlayManager
@@ -84,6 +85,10 @@ class SupportToolsActivity : BaseActivity() {
 
             SupportToolsUiEvent.MoveLogViewer -> {
                 LogViewerActivity.start(this)
+            }
+
+            SupportToolsUiEvent.MoveEnvironmentConfigViewer -> {
+                EnvironmentConfigViewerActivity.start(this)
             }
         }
     }

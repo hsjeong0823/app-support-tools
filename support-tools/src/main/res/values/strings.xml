@@ -18,4 +18,9 @@
     <string name="preference_viewer_screen_title">Preference Viewer</string>
     <string name="log_viewer_screen_title">Log Viewer</string>
     <string name="support_tools_launcher_label">Support Tools</string>
+    <string name="environment_config_viewer_button">Environment Config Viewer</string>
+    <string name="environment_config_viewer_screen_title">support_tools_environments.json</string>
+    <string name="environment_config_copy">전체 복사</string>
+    <string name="environment_config_copied">환경 설정 JSON을 복사했습니다.</string>
+    <string name="environment_config_unavailable">로드된 환경 설정 JSON이 없습니다.</string>
 </resources>

@@ -177,6 +177,19 @@ fun SupportToolsContentView(viewModel: SupportToolsViewModel, onUiEventListener:
                 onClick = { onUiEventListener?.invoke(SupportToolsUiEvent.MovePreferenceViewer) }
             )
         }
+
+        // Environment config viewer 버튼 View
+        Spacer(modifier = Modifier.height(16.dp))
+        Box(modifier = Modifier
+            .background(color = colorResource(R.color.c_ffffff))) {
+            CtaButton(
+                buttonType = ButtonType.FILLWHITE_BORDERGREEN,
+                ctaButtonStyle = CtaButtonStyle.TYPE_MEDIUM,
+                text = stringResource(R.string.environment_config_viewer_button),
+                enabled = true,
+                onClick = { onUiEventListener?.invoke(SupportToolsUiEvent.MoveEnvironmentConfigViewer) }
+            )
+        }
     }
 }
 

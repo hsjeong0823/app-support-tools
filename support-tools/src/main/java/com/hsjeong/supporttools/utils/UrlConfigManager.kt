@@ -28,6 +28,8 @@ object UrlConfigManager {
     private val baseUrlMap = mutableMapOf<String, UrlConfigData>()
     @Volatile
     private var environmentResolver: EnvironmentAuthorityResolver? = null
+    @Volatile
+    private var environmentConfigJson: String? = null
 
     @JvmStatic
     fun setUrlConfigData(list: List<UrlConfigData>, addUrlCompleteCallback: (() -> Unit)? = null) {
@@ -87,12 +89,16 @@ object UrlConfigManager {
             is EnvironmentConfigParseResult.Failure -> null
         }
         environmentResolver = next
+        environmentConfigJson = if (next != null) json else null
         return next != null
     }
 
     internal fun clearEnvironmentConfig() {
         environmentResolver = null
+        environmentConfigJson = null
     }
+
+    internal fun getEnvironmentConfigJson(): String? = environmentConfigJson
 
     internal fun resolveAuthority(context: Context, original: String): String =
         if (!PreferencesUtil.getUrlSwitchingEnable(context)) original

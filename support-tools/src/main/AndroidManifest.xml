@@ -42,6 +42,11 @@
             android:launchMode="singleTop"
             android:exported="false"/>
 
+        <activity
+            android:name="com.hsjeong.supporttools.ui.environmentconfig.EnvironmentConfigViewerActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+
         <provider
             android:name="com.hsjeong.supporttools.utils.SupportToolsFileProvider"
             android:authorities="${applicationId}.supporttools.fileprovider"
