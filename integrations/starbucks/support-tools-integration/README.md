@@ -1,49 +1,63 @@
 # Starbucks support-tools 연동
 
-이 폴더는 Starbucks 앱에 필요한 host 전용 support-tools 연동 파일을 모아 둔 복사용 패키지다. 실제 URL, 토큰, 비밀번호 또는 인증 정보는 포함하지 않는다.
+이 폴더는 Starbucks 앱에 필요한 host 전용 support-tools 연동 파일을 모아 둔다. Starbucks에서는 이 폴더를 복사하지 않고 절대 경로로 직접 참조한다. 실제 URL, 토큰, 비밀번호 또는 인증 정보는 포함하지 않는다.
 
 ## 권장 구성: 소스 모듈
 
 개발 중 support-tools를 바로 수정하고 확인할 수 있도록 로컬의 `app-support-tools` 절대 경로를 사용한다. 두 저장소를 같은 상위 폴더에 둘 필요는 없다.
 
-`app-support-tools`는 `dev` 브랜치를 사용한다. 이 폴더를 `app-support-tools/integrations/starbucks/`에서 Starbucks 프로젝트 루트로 복사한다.
+`app-support-tools`는 `dev` 브랜치를 사용한다.
 
-```text
-starbucks_android/
-└── support-tools-integration/
+### 1. 활성화 옵션
+
+Starbucks `gradle.properties`에 추가한다. `false`이면 debug 빌드에도 support-tools 모듈, Provider, Manifest 및 환경 JSON을 포함하지 않는다.
+
+```properties
+supportToolsEnabled=false
 ```
 
-### 1. 소스 모듈 등록
+### 2. 소스 모듈 등록
 
 Starbucks `settings.gradle`에 로컬 절대 경로로 모듈을 등록한다.
 
 ```groovy
-include ':support-tools'
-project(':support-tools').projectDir =
-        new File('/Users/hwasoojeong/Desktop/hsjeong/study/app-support-tools/support-tools')
+def supportToolsEnabled = providers.gradleProperty('supportToolsEnabled')
+        .orElse('false')
+        .get()
+        .toBoolean()
+
+if (supportToolsEnabled) {
+    include ':support-tools'
+    project(':support-tools').projectDir =
+            new File('/Users/hwasoojeong/Desktop/hsjeong/study/app-support-tools/support-tools')
+}
 ```
 
 support-tools가 Compose 플러그인과 호환 버전을 자체 선언하므로 Starbucks의 Compose 플러그인, classpath 또는 build feature 설정은 변경하지 않는다.
 
-### 2. 연동 스크립트 적용
+### 3. 연동 스크립트 적용
 
 Starbucks `app/build.gradle`의 `android { ... }` 블록 다음에 추가한다.
 
 ```groovy
-apply from: "$rootDir/support-tools-integration/support-tools-integration.gradle"
+apply from: "/Users/hwasoojeong/Desktop/hsjeong/study/app-support-tools/integrations/starbucks/support-tools-integration/support-tools-integration.gradle"
 ```
 
-### 3. debug 의존성 추가
+Resolver는 활성화 여부와 관계없이 연결되며 비활성화 상태에서는 기존 authority를 그대로 반환한다.
+
+### 4. debug 의존성 추가
 
 같은 파일의 `dependencies`에 추가한다.
 
 ```groovy
-debugImplementation project(':support-tools')
+if (supportToolsEnabled) {
+    debugImplementation project(':support-tools')
+}
 ```
 
 `implementation`이나 `releaseImplementation`으로 추가하지 않는다.
 
-### 4. URL 생성 지점 연결
+### 5. URL 생성 지점 연결
 
 `NewURI.Builder.build()`의 기존 authority 추가 코드를 다음과 같이 바꾼다.
 

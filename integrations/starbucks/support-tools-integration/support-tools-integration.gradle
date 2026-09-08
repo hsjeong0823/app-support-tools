@@ -59,6 +59,11 @@ def supportToolsServices = [
         [id: 'frequency-defect', dev: 'webFrequencyDefectReportDevUri', stg: 'webFrequencyDefectReportStgUri', real: 'webFrequencyDefectReportRealUri', aliases: []],
 ]
 
+def supportToolsEnabled = providers.gradleProperty('supportToolsEnabled')
+        .orElse('false')
+        .get()
+        .toBoolean()
+
 ext.supportToolsBuildEnvironmentConfig = { Properties properties ->
     def ids = supportToolsServices*.id
     if (ids.size() != ids.toSet().size()) {
@@ -95,20 +100,23 @@ ext.supportToolsBuildEnvironmentConfig = { Properties properties ->
 plugins.withId('com.android.application') {
     def kitDir = buildscript.sourceFile.parentFile
     android.sourceSets.main.java.srcDir(new File(kitDir, 'src/main/java'))
-    android.sourceSets.debug.java.srcDir(new File(kitDir, 'src/debug/java'))
-    android.sourceSets.debug.manifest.srcFile(new File(kitDir, 'src/debug/AndroidManifest.xml'))
 
-    androidComponents.onVariants(
-            androidComponents.selector().withBuildType('debug')) { variant ->
-        def generateTask = tasks.register(
-                "generate${variant.name.capitalize()}SupportToolsEnvironment",
-                GenerateSupportToolsEnvironmentTask) {
-            propertiesFile.set(rootProject.layout.projectDirectory.file('uri.properties'))
-            configBuilder = supportToolsBuildEnvironmentConfig
-        }
+    if (supportToolsEnabled) {
+        android.sourceSets.debug.java.srcDir(new File(kitDir, 'src/debug/java'))
+        android.sourceSets.debug.manifest.srcFile(new File(kitDir, 'src/debug/AndroidManifest.xml'))
 
-        variant.sources.res.addGeneratedSourceDirectory(generateTask) {
-            it.outputDirectory
+        androidComponents.onVariants(
+                androidComponents.selector().withBuildType('debug')) { variant ->
+            def generateTask = tasks.register(
+                    "generate${variant.name.capitalize()}SupportToolsEnvironment",
+                    GenerateSupportToolsEnvironmentTask) {
+                propertiesFile.set(rootProject.layout.projectDirectory.file('uri.properties'))
+                configBuilder = supportToolsBuildEnvironmentConfig
+            }
+
+            variant.sources.res.addGeneratedSourceDirectory(generateTask) {
+                it.outputDirectory
+            }
         }
     }
 }
