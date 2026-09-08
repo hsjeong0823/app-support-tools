@@ -2,3 +2,26 @@ plugins {
     id 'com.android.library' version '8.7.2' apply false
     id 'org.jetbrains.kotlin.android' version '2.2.0' apply false
 }
+
+tasks.register('verifyJava17Bytecode') {
+    dependsOn ':support-tools:bundleDebugAar'
+
+    doLast {
+        def classesJar = file(
+                '../../../support-tools/build/intermediates/aar_main_jar/debug/syncDebugLibJars/classes.jar')
+        assert classesJar.isFile(): "Missing support-tools classes.jar"
+
+        new java.util.jar.JarFile(classesJar).withCloseable { jar ->
+            def entry = jar.getEntry('com/hsjeong/supporttools/SupportTools.class')
+            assert entry != null: 'Missing SupportTools.class'
+
+            new DataInputStream(jar.getInputStream(entry)).withCloseable { input ->
+                assert input.readInt() == 0xCAFEBABE as int
+                input.readUnsignedShort()
+                def majorVersion = input.readUnsignedShort()
+                assert majorVersion == 61:
+                        "Expected Java 17 bytecode (61), found ${majorVersion}"
+            }
+        }
+    }
+}
