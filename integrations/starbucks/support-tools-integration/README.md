@@ -4,13 +4,7 @@
 
 ## 권장 구성: 소스 모듈
 
-개발 중 support-tools를 바로 수정하고 확인할 수 있도록 두 저장소를 같은 상위 폴더에 둔다.
-
-```text
-android_tools/
-├── app-support-tools/
-└── starbucks_android/
-```
+개발 중 support-tools를 바로 수정하고 확인할 수 있도록 로컬의 `app-support-tools` 절대 경로를 사용한다. 두 저장소를 같은 상위 폴더에 둘 필요는 없다.
 
 `app-support-tools`는 `dev` 브랜치를 사용한다. 이 폴더를 `app-support-tools/integrations/starbucks/`에서 Starbucks 프로젝트 루트로 복사한다.
 
@@ -21,12 +15,12 @@ starbucks_android/
 
 ### 1. 소스 모듈 등록
 
-Starbucks `settings.gradle`에 상대경로로 모듈을 등록한다.
+Starbucks `settings.gradle`에 로컬 절대 경로로 모듈을 등록한다.
 
 ```groovy
 include ':support-tools'
 project(':support-tools').projectDir =
-        new File(settingsDir, '../app-support-tools/support-tools')
+        new File('/Users/hwasoojeong/Desktop/hsjeong/study/app-support-tools/support-tools')
 ```
 
 support-tools가 Compose 플러그인과 호환 버전을 자체 선언하므로 Starbucks의 Compose 플러그인, classpath 또는 build feature 설정은 변경하지 않는다.
