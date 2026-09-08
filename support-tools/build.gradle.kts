@@ -3,6 +3,7 @@ plugins {
 //    alias(libs.plugins.kotlin.android)
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose") version "2.2.0"
 }
 
 android {
@@ -34,9 +35,6 @@ android {
     }
     buildFeatures {
         compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.15" // Compose Compiler 버전
     }
 }
 
