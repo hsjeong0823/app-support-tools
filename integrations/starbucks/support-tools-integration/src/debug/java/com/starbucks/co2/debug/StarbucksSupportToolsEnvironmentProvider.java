@@ -17,14 +17,10 @@ public final class StarbucksSupportToolsEnvironmentProvider extends ContentProvi
         Context context = getContext();
         if (context != null) {
             Context appContext = context.getApplicationContext();
-            SupportToolsNetworkBridge.install(
-                    (networkContext, builder) ->
-                            SupportTools.addNetworkInterceptor(networkContext, builder));
+            SupportToolsNetworkBridge.install(SupportTools::addNetworkInterceptor);
 
-            if (SupportTools.loadEnvironmentConfig(
-                    context, R.raw.support_tools_environments)) {
-                NewUriAuthorityResolver.install(
-                        original -> SupportTools.resolveAuthority(appContext, original));
+            if (SupportTools.loadEnvironmentConfig(context, R.raw.support_tools_environments)) {
+                NewUriAuthorityResolver.install(original -> SupportTools.resolveAuthority(appContext, original));
             }
         }
         return true;

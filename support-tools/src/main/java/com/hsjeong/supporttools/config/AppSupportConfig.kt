@@ -5,14 +5,12 @@ class AppSupportConfig private constructor(
     val enableLogViewer: Boolean,
     val enableNetworkLog: Boolean,
     val enableUrlSwitching: Boolean,
-    val enableVolumeShortcut: Boolean,
 ) {
     class Builder {
         private var enableScreenNameOverLay: Boolean = true
         private var enableLogViewer: Boolean = true
         private var enableNetworkLog: Boolean = true
         private var enableUrlSwitching: Boolean = true
-        private var enableVolumeShortcut: Boolean = false
 
         fun enableScreenNameOverLay(enable: Boolean) = apply {
             this.enableScreenNameOverLay = enable
@@ -30,10 +28,6 @@ class AppSupportConfig private constructor(
             this.enableUrlSwitching = enable
         }
 
-        fun enableVolumeShortcut(enable: Boolean) = apply {
-            this.enableVolumeShortcut = enable
-        }
-
 
         fun build(): AppSupportConfig {
             return AppSupportConfig(
@@ -41,7 +35,6 @@ class AppSupportConfig private constructor(
                 enableLogViewer,
                 enableNetworkLog,
                 enableUrlSwitching,
-                enableVolumeShortcut,
             )
         }
     }

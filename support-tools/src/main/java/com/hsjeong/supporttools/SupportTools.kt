@@ -3,14 +3,7 @@ package com.hsjeong.supporttools
 import android.app.Activity
 import android.app.Application
 import android.content.Context
-import android.os.Build
-import android.os.Bundle
 import android.util.Log
-import android.view.KeyEvent
-import android.view.KeyboardShortcutGroup
-import android.view.Menu
-import android.view.Window
-import android.widget.Toast
 import androidx.annotation.RawRes
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -20,16 +13,12 @@ import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.chuckerteam.chucker.api.RetentionManager
 import com.hsjeong.supporttools.config.AppSupportConfig
 import com.hsjeong.supporttools.startup.InitializationGate
-import com.hsjeong.supporttools.startup.DebugKeyEvent
-import com.hsjeong.supporttools.startup.DebugKeyEventDecision
-import com.hsjeong.supporttools.startup.DebugKeyEventHandler
 import com.hsjeong.supporttools.ui.main.SupportToolsActivity
 import com.hsjeong.supporttools.utils.DeepLinkData
 import com.hsjeong.supporttools.utils.DeepLinkManager
 import com.hsjeong.supporttools.utils.LogcatOverlayManager
 import com.hsjeong.supporttools.utils.PreferencesUtil
 import com.hsjeong.supporttools.utils.ScreenNameOverlayManager
-import com.hsjeong.supporttools.utils.UrlConfigData
 import com.hsjeong.supporttools.utils.UrlConfigManager
 import com.hsjeong.supporttools.utils.WindowLogManager
 import okhttp3.OkHttpClient
@@ -44,20 +33,14 @@ import okhttp3.OkHttpClient
  */
 object SupportTools {
     private const val TAG = "SupportTools"
-    private var isDebug = true
     private val processInitializationGate = InitializationGate()
-    private val activityInitializationGate = InitializationGate()
     private val screenOverlayInitializationGate = InitializationGate()
     var appSupportConfig: AppSupportConfig? = null
         private set
 
     internal fun isInitializedForTests(): Boolean =
         processInitializationGate.isInitialized &&
-            activityInitializationGate.isInitialized &&
-            screenOverlayInitializationGate.isInitialized
-
-    internal fun isVolumeShortcutEnabledForTests(debugEnabled: Boolean, config: AppSupportConfig?): Boolean =
-        debugEnabled && config?.enableVolumeShortcut == true
+                screenOverlayInitializationGate.isInitialized
 
     private inline fun runSafe(action: () -> Unit) {
         try {
@@ -69,11 +52,14 @@ object SupportTools {
 
     @JvmStatic
     @JvmOverloads
-    fun initialize(application: Application, debugEnable: Boolean = true, config: AppSupportConfig? = null) {
+    fun initialize(
+        application: Application,
+        debugEnable: Boolean = true,
+        config: AppSupportConfig? = null
+    ) {
         runSafe {
-            isDebug = debugEnable
             appSupportConfig = config
-            if (isDebug) {
+            if (debugEnable) {
                 config?.let {
                     PreferencesUtil.setScreenNameOverLayEnable(application, config.enableScreenNameOverLay)
                     PreferencesUtil.setLogcatViewerEnable(application, config.enableLogViewer)
@@ -82,45 +68,21 @@ object SupportTools {
                 }
 
                 processInitializationGate.runOnce {
-                    ProcessLifecycleOwner.get().lifecycle.addObserver(object :
-                    DefaultLifecycleObserver {
-                    override fun onStart(owner: LifecycleOwner) {
-                        runSafe {
-                            if (PreferencesUtil.getLogcatViewerEnable(application)) {
-                                LogcatOverlayManager.show(application)
-                            }
-                        }
-                    }
-
-                    override fun onStop(owner: LifecycleOwner) {
-                        runSafe {
-                            LogcatOverlayManager.remove()
-                            WindowLogManager.remove()
-                        }
-                    }
-                    })
-                }
-
-                activityInitializationGate.runOnce {
-                    application.registerActivityLifecycleCallbacks(object :
-                    Application.ActivityLifecycleCallbacks {
-                    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
-                    override fun onActivityResumed(activity: Activity) {
-                        runSafe {
-                            if (isVolumeShortcutEnabledForTests(isDebug, appSupportConfig)) {
-                                val window = activity.window
-                                if (window.callback !is DebugKeyCallback) {
-                                    val originCallback = window.callback
-                                    window.callback = DebugKeyCallback(originCallback, activity)
+                    ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
+                        override fun onStart(owner: LifecycleOwner) {
+                            runSafe {
+                                if (PreferencesUtil.getLogcatViewerEnable(application)) {
+                                    LogcatOverlayManager.show(application)
                                 }
                             }
                         }
-                    }
-                    override fun onActivityStarted(activity: Activity) {}
-                    override fun onActivityPaused(activity: Activity) {}
-                    override fun onActivityStopped(activity: Activity) {}
-                    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
-                    override fun onActivityDestroyed(activity: Activity) {}
+
+                        override fun onStop(owner: LifecycleOwner) {
+                            runSafe {
+                                LogcatOverlayManager.remove()
+                                WindowLogManager.remove()
+                            }
+                        }
                     })
                 }
 
@@ -133,25 +95,6 @@ object SupportTools {
                 PreferencesUtil.setLogcatViewerEnable(application, false)
                 PreferencesUtil.setNetworkLogEnable(application, false)
                 PreferencesUtil.setUrlSwitchingEnable(application, false)
-            }
-        }
-    }
-
-    // 서버 설정을 위한 url 값 설정
-    @JvmStatic
-    fun setUrlConfigData(context: Context, list: List<UrlConfigData>, callback: ((targetUrlsMap: Map<String, String>) -> Unit)? = null) {
-        runSafe {
-            UrlConfigManager.setUrlConfigData(list) {
-                runSafe {
-                    val isNetworkSwitching = PreferencesUtil.getUrlSwitchingEnable(context)
-                    if (isNetworkSwitching) {
-                        val targetUrlsMap = UrlConfigManager.getTargetUrlsMap(context)
-                        if (!targetUrlsMap.isEmpty() && list.size == targetUrlsMap.size) {
-                            callback?.invoke(targetUrlsMap)
-                            Toast.makeText(context, "${UrlConfigManager.getServerType(context)} 설정", Toast.LENGTH_LONG).show()
-                        }
-                    }
-                }
             }
         }
     }
@@ -183,17 +126,6 @@ object SupportTools {
         context: Context,
         okHttpBuilder: OkHttpClient.Builder
     ) {
-        if (!isDebug) {
-            return
-        }
-        runSafe {
-            val isNetworkSwitching = PreferencesUtil.getUrlSwitchingEnable(context)
-
-            if (isNetworkSwitching) {
-                okHttpBuilder.addInterceptor(UrlConfigManager.UrlSwitchingInterceptor(context))
-            }
-        }
-
         runSafe {
             val isNetworkLog = PreferencesUtil.getNetworkLogEnable(context)
             if (isNetworkLog) {
@@ -230,49 +162,6 @@ object SupportTools {
         }
         runSafe {
             DeepLinkManager.setDeepLinkList(list)
-        }
-    }
-
-    private class DebugKeyCallback(private val origin: Window.Callback, private val activity: Activity) : Window.Callback by origin {
-        private val keyEventHandler = DebugKeyEventHandler(
-            isEnabled = { isVolumeShortcutEnabledForTests(isDebug, appSupportConfig) },
-        )
-
-        override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-            return try {
-                when (keyEventHandler.handle(DebugKeyEvent(event.action, event.keyCode, event.repeatCount))) {
-                    DebugKeyEventDecision.CONSUME -> {
-                        SupportToolsActivity.start(activity)
-                        true
-                    }
-                    DebugKeyEventDecision.FORWARD -> origin.dispatchKeyEvent(event)
-                }
-            } catch (t: Throwable) {
-                Log.e(TAG, "Error in DebugKeyCallback dispatchKeyEvent", t)
-                origin.dispatchKeyEvent(event)
-            }
-        }
-
-        override fun onProvideKeyboardShortcuts(
-            data: List<KeyboardShortcutGroup?>?,
-            menu: Menu?,
-            deviceId: Int
-        ) {
-            try {
-                origin.onProvideKeyboardShortcuts(data, menu, deviceId)
-            } catch (t: Throwable) {
-                Log.e(TAG, "Error in DebugKeyCallback onProvideKeyboardShortcuts", t)
-            }
-        }
-
-        override fun onPointerCaptureChanged(hasCapture: Boolean) {
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    origin.onPointerCaptureChanged(hasCapture)
-                }
-            } catch (t: Throwable) {
-                Log.e(TAG, "Error in DebugKeyCallback onPointerCaptureChanged", t)
-            }
         }
     }
 }
